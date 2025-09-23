@@ -1,0 +1,9 @@
+{
+	"name": "auscode",
+	"entrypoint": "script.lua",
+	"src": [".","../modules"],
+	"out": "{SW_SAVE}/data/missions/{NAME}/script.lua",
+	"transformers": {
+		"tracing": false
+	}
+}
