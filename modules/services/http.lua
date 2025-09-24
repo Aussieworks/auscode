@@ -173,18 +173,23 @@ end
 function modules.services.http:_load(load)
     local loaded = modules.libraries.gsave:loadService("http")
     if loaded and not load then
-        for id, request in pairs(loaded.requests) do
-            if type(request) == "table" then
-                self.requests[id] = modules.classes.httpRequest:create(request.url, request.port, id, function(request, reply)
-                    modules.libraries.logging:error("httpRequest", "Http reply received after reload or load, function no longer exists for ID: " .. tostring(id))
-                end)
-            else
-                modules.libraries.logging:warning("http:_load()", "Invalid request format for ID: " .. tostring(id))
+        if loaded.requests == nil then
+            modules.libraries.logging:warning("http:_load()", "No requests found in saved HTTP service")
+            loaded.requests = {}
+        else
+            for id, request in pairs(loaded.requests) do
+                if type(request) == "table" then
+                    self.requests[id] = modules.classes.httpRequest:create(request.url, request.port, id, function(request, reply)
+                        modules.libraries.logging:error("httpRequest", "Http reply received after reload or load, function no longer exists for ID: " .. tostring(id))
+                    end)
+                else
+                    modules.libraries.logging:warning("http:_load()", "Invalid request format for ID: " .. tostring(id))
+                end
             end
         end
-        self.counter = math.floor(loaded.counter) or self.counter
+        self.counter = math.floor((loaded and loaded.counter or self.counter))
         modules.libraries.logging:debug("http:_load()", "HTTP service loaded with " .. #self.requests .. " requests")
     elseif loaded and load then
-        self.counter = math.floor(loaded.counter) or self.counter
+        self.counter = math.floor((loaded and loaded.counter or self.counter))
     end
 end

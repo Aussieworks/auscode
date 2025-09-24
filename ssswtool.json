@@ -4,6 +4,6 @@
 	"src": ["."],
 	"out": "{SW_SAVE}/data/missions/{NAME}/script.lua",
 	"transformers": {
-		"tracing": false
+		"tracing": "full"
 	}
 }

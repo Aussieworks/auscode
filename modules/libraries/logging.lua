@@ -79,9 +79,9 @@ function modules.libraries.logging:setLogLevel(state)
         modules.libraries.logging:error("libraries.logging", "log level cannot be nil") -- print an error to the console
         return
     end
-    if self.logtypes[state] then
-        self.logLevel = self.logtypes[state] -- set the log level to the state
-        modules.libraries.settings:setValue("loggingLevel", self.loglevel) -- set the log level in the settings
+    if self.logTypes[state] then
+        self.logLevel = self.logTypes[state] -- set the log level to the state
+        modules.libraries.settings:setValue("loggingLevel", self.logLevel) -- set the log level in the settings
         self:info("libraries.logging", "Log level set to " .. state) -- print the log level to the console
     else
         self:error("libraries.logging", "Invalid log level: " .. state)
