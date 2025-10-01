@@ -59,5 +59,9 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         end
     end
 
+    function vehicleGroup:despawn(is_instant)
+        server.despawnVehicleGroup(self.groupId, is_instant or false)
+    end
+
     return vehicleGroup
 end

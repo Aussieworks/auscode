@@ -36,5 +36,9 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded)
         return server.setVehicleInvulnerable(self.id, state)
     end
 
+    function vehicle:despawn(is_instant)
+        server.despawnVehicle(self.id, is_instant or false)
+    end
+
     return vehicle
 end
