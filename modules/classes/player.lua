@@ -139,5 +139,13 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, perms
         return pos
     end
 
+    -- sends a notification to the player
+    ---@param title string
+    ---@param message string
+    ---@param notificationType number
+    function player:notify(title, message, notificationType)
+        server.notify(self.peerId, title, message, notificationType)
+    end
+
     return player
 end

@@ -118,6 +118,24 @@ function modules.services.vehicle:getVehicleGroup(vehicle_id, mustBeLoaded)
     return g
 end
 
+-- get all vehicle groups owned by a player
+---@param player Player
+---@return table<number, VehicleGroup>
+function modules.services.vehicle:getPlayersVehicleGroups(player)
+    local groups = {}
+    for _, vGroup in pairs(self.loadedVehicles) do
+        if modules.services.player:isSamePlayer(vGroup.owner,player) then
+            table.insert(groups, vGroup)
+        end
+    end
+    for _, vGroup in pairs(self.loadingVehicles) do
+        if modules.services.player:isSamePlayer(vGroup.owner,player) then
+            table.insert(groups, vGroup)
+        end
+    end
+    return groups
+end
+
 -- internal function to save the vehicles service
 function modules.services.vehicle:_save()
     modules.libraries.gsave:saveService("vehicles", self)
@@ -140,7 +158,7 @@ function modules.services.vehicle:_load()
                 local rebuiltVehicle = modules.classes.vehicle:create(vehicle.id, vGroup.groupId, vehicle.isLoaded)
                 rebuiltGroup:addVehicle(rebuiltVehicle)
             end
-            rebuilt[vGroup.groupId] = rebuiltGroup
+            rebuilt[rebuiltGroup.groupId] = rebuiltGroup
         end
         self.loadingVehicles = rebuilt
     end
@@ -153,7 +171,7 @@ function modules.services.vehicle:_load()
                 local rebuiltVehicle = modules.classes.vehicle:create(vehicle.id, vGroup.groupId, vehicle.isLoaded)
                 rebuiltGroup:addVehicle(rebuiltVehicle)
             end
-            rebuilt[vGroup.groupId] = rebuiltGroup
+            rebuilt[rebuiltGroup.groupId] = rebuiltGroup
         end
         self.loadedVehicles = rebuilt
     end

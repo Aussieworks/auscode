@@ -28,5 +28,13 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded)
         self.isLoaded = true
     end
 
+    function vehicle:setEditable(state)
+        return server.setVehicleEditable(self.id, state)
+    end
+
+    function vehicle:setInvulnerable(state)
+        return server.setVehicleInvulnerable(self.id, state)
+    end
+
     return vehicle
 end

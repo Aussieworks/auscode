@@ -43,5 +43,21 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         end
     end
 
+    function vehicleGroup:setEditable(state)
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:setEditable(state)
+            end
+        end
+    end
+
+    function vehicleGroup:setInvulnerable(state)
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:setInvulnerable(state)
+            end
+        end
+    end
+
     return vehicleGroup
 end
