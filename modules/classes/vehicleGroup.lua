@@ -43,5 +43,50 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         end
     end
 
+    function vehicleGroup:setEditable(state)
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:setEditable(state)
+            end
+        end
+    end
+
+    function vehicleGroup:setInvulnerable(state)
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:setInvulnerable(state)
+            end
+        end
+    end
+
+    function vehicleGroup:despawn(is_instant)
+        server.despawnVehicleGroup(self.groupId, is_instant or false)
+    end
+
+    function vehicleGroup:getInfo(update)
+        local info = {}
+        info["characters"] = info["characters"] or {}
+        info["components"] = info["components"] or {}
+        for _, vehicle in pairs(self.vehicles) do
+            local vinfo = vehicle:getInfo(update)
+            info["mass"] = (info["mass"] or 0) + (vinfo.mass or 0)
+            info["voxels"] = (info["voxels"] or 0) + (vinfo.voxels or 0)
+            for _, id in pairs(vinfo.characters) do
+                table.insert(info["characters"], id)
+            end
+            for i, v in pairs(vinfo.components) do
+                if #v > 0 then
+                    info["components"][i] = info["components"][i] or {}
+                    for _, comp in pairs(v) do
+                        table.insert(info["components"][i], comp)
+                    end
+                else
+                    info["components"][i] = v
+                end
+            end
+        end
+        return info
+    end
+
     return vehicleGroup
 end

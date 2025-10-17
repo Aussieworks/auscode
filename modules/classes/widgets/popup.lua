@@ -1,8 +1,8 @@
-modules.classes.widgets.popupScreen = {}
+modules.classes.widgets.popup = {}
 
----@return PopupScreenWidget
-function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, player)
-    ---@class PopupScreenWidget
+---@return PopupWidget
+function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player, renderDistance, vehicleParent, objectParent)
+    ---@class PopupWidget
     ---@field type string
     ---@field player Player|nil
     ---@field id integer
@@ -10,31 +10,39 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
     ---@field text string
     ---@field x number
     ---@field y number
-    local screen = {
-        _class = "PopupScreenWidget",
-        type = "popupScreen",
+    ---@field z number
+    ---@field renderDistance number
+    ---@field vehicleParent Vehicle|nil
+    ---@field objectParent integer|nil
+    local popup = {
+        _class = "PopupWidget",
+        type = "popup",
         player = player,
         id = id,
         visible = visible or true,
         text = text or "",
         x = x or 0, -- Default horizontal position
         y = y or 0, -- Default vertical position
+        z = z or 0, -- Default vertical position
+        renderDistance = renderDistance or 100, -- Default render distance
+        vehicleParent = vehicleParent,
+        objectParent = objectParent
     }
 
     -- update the ui object for the player
     ---@param player Player
-    function screen:_update(player)
-        server.setPopupScreen(player.peerId, self.id, "", self.visible, self.text, self.x, self.y)
+    function popup:_update(player)
+        server.setPopup(player.peerId, self.id, "", self.visible, self.text, self.x, self.y, self.z, self.renderDistance, (self.vehicleParent and self.vehicleParent.id or nil), self.objectParent)
     end
 
     -- remove the ui object from the player
     ---@param player Player
-    function screen:_destroy(player)
-        server.setPopupScreen(player.peerId, self.id, "", false, "", 0, 0)
+    function popup:_destroy(player)
+        server.setPopup(player.peerId, self.id, "", false, "", 0, 0, 0, 0)
     end
 
     -- update the ui object
-    function screen:update()
+    function popup:update()
         if self.player then
             self:_destroy(self.player)
             self:_update(self.player)
@@ -47,7 +55,7 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
     end
 
     -- destroy the ui object
-    function screen:destroy()
+    function popup:destroy()
         if self.player then
             self:_destroy(self.player)
         else
@@ -57,5 +65,5 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
         end
     end
 
-    return screen
+    return popup
 end

@@ -8,7 +8,7 @@ modules.classes.player = {} -- table of player functions
 ---@param perms table|nil
 ---@param extra table|nil
 ---@return Player
-function modules.classes.player:create(peerId, steamId, name, admin, auth, perms, extra)
+function modules.classes.player:create(peerId, steamId, name, admin, auth, objectId, perms, extra)
     ---@class Player
     local player = {
         _class = "Player",
@@ -17,6 +17,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, perms
         name = name or "Unknown",
         admin = admin or false,
         auth = auth or false,
+        objectId = objectId or nil,
         inGame = true,
         perms = perms or {},
         extra = extra or {}
@@ -137,6 +138,14 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, perms
             return matrix.translation(0,0,0)
         end
         return pos
+    end
+
+    -- sends a notification to the player
+    ---@param title string
+    ---@param message string
+    ---@param notificationType number
+    function player:notify(title, message, notificationType)
+        server.notify(self.peerId, title, message, notificationType)
     end
 
     return player

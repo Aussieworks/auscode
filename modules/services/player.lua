@@ -63,7 +63,9 @@ function modules.services.player:startService()
         for _, player in pairs(players) do
             local playerObjId = server.getPlayerCharacterID(player.peerId)
             if playerObjId == object_id then
+                player.objectId = playerObjId
                 modules.libraries.logging:debug("onObjectLoad", "Player loaded with steam_id: " .. player.steamId .. ", name: " .. player.name .. ", peer_id: " .. player.peerId)
+                self:_save() -- save the player service
                 self.onLoad:fire(player) -- fire the event
             end
         end
@@ -144,6 +146,7 @@ function modules.services.player:_load()
                 playerData.name,
                 playerData.admin,
                 playerData.auth,
+                playerData.objectId,
                 playerData.perms,
                 playerData.extra
             )
@@ -171,7 +174,8 @@ function modules.services.player:_load()
                 player.steam_id,
                 player.name,
                 player.admin,
-                player.auth
+                player.auth,
+                player.object_id
             )
             if newPlayer then
                 self.players[tostring(player.steam_id)] = newPlayer -- add the player to the table
@@ -204,6 +208,8 @@ function modules.services.player:_verifyOnlinePlayers()
         player.inGame = onlinePlayers[tostring(player.steamId)] ~= nil -- set inGame based on onlinePlayers
         if not player.inGame and modules.addonReason == "load" then
             player.peerId = -1
+        elseif not player.inGame and player.peerId ~= -1 then
+            self.peerIdIndex[tostring(player.peerId)] = tostring(player.steamId) -- add offline but not old save players to peerIdIndex
         end
     end
 end

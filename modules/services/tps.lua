@@ -20,7 +20,7 @@ function modules.services.tps:startService()
             end
         end
 
-        self.tps = self:_calculateTPS(modules.services.tps._last, now, game_ticks)
+        self.tps = self:_calculateTPS(self._last, now, game_ticks)
         self._last = server.getTimeMillisec() -- update the last tick time
     end)
 end

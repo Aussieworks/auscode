@@ -73,18 +73,17 @@ function modules.services.http:startService()
 end
 
 -- send a http or grouped http request through the backend
----@param port number
 ---@param url string
 ---@param callback function
 ---@param groupedRequest boolean
 ---@return HttpRequest|nil
-function modules.services.http:get(port, url, callback, groupedRequest)
+function modules.services.http:get(url, callback, groupedRequest)
     -- Increment the counter for a new request ID
     self.counter = self.counter + 1
     local requestId = self.counter
 
     -- Store the request and its callback
-    self.requests[requestId] = modules.classes.httpRequest:create(url, port, requestId, callback)
+    self.requests[requestId] = modules.classes.httpRequest:create(url,  requestId, callback)
 
     if groupedRequest then
         table.insert(self.groupedRequests, requestId)
@@ -94,9 +93,9 @@ function modules.services.http:get(port, url, callback, groupedRequest)
         local formatedRequest = self:_format(self.requests[requestId])
 
         -- Send the HTTP request
-        server.httpGet(port, formatedRequest)
+        server.httpGet(self.backendPort, formatedRequest)
 
-        modules.libraries.logging:debug("http:get()", "Sent request with ID: " .. tostring(requestId) .. " to port: " .. tostring(port) .. " with URL: " .. url .. " formated to: "..formatedRequest)
+        modules.libraries.logging:debug("http:get()", "Sent request with ID: " .. tostring(requestId) .. " to URL: " .. url .. " formated to: "..formatedRequest)
 
         return self.requests[requestId]
     end
@@ -179,7 +178,7 @@ function modules.services.http:_load(load)
         else
             for id, request in pairs(loaded.requests) do
                 if type(request) == "table" then
-                    self.requests[id] = modules.classes.httpRequest:create(request.url, request.port, id, function(request, reply)
+                    self.requests[id] = modules.classes.httpRequest:create(request.url, id, function(request, reply)
                         modules.libraries.logging:error("httpRequest", "Http reply received after reload or load, function no longer exists for ID: " .. tostring(id))
                     end)
                 else

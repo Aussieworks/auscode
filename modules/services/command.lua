@@ -10,34 +10,14 @@ function modules.services.command:startService()
     modules.libraries.callbacks:connect("onCustomCommand", function(full_message, peer_id, is_admin, is_auth, command, ...)
         if peer_id == -1 then return end -- ignore server sending commands
 
-        command = self:cleanCommandString(command)
+        local command = self:cleanCommandString(command)
 
         if not command or command == "" then modules.libraries.logging:info("services.command", "Empty command ignored") return end -- ignore empty commands
 
-        args = table.pack(...) -- pack the arguments into a table
+        local args = table.pack(...) -- pack the arguments into a table
+
         local player = modules.services.player:getPlayerByPeer(peer_id)
-        if self.commands[command] then
-            local hasPerm = false
-            for _,perm in pairs(self.commands[command].perms) do
-                modules.libraries.logging:debug("services.command", "Checking permission: " .. perm .. " for command: " .. command)
-                if (player and player:hasPerm(perm)) then
-                    modules.libraries.logging:debug("services.command", "Player has permission: " .. perm .. " for command: " .. command)
-                    hasPerm = true
-                    break
-                end
-            end
-            self.commands[command]:run(player, full_message, command, args, hasPerm)
-        elseif not self.commands[command] then
-            for _, cmd in pairs(self.commands) do
-                for _, alias in pairs(cmd.alias) do
-                    if alias == command then
-                        cmd:run(player, full_message, command, args)
-                        return
-                    end
-                end
-            end
-            modules.libraries.logging:warning("services.command", "Command not found: " .. command)
-        end
+        self:run(command, full_message, player, args)
     end)
 end
 
@@ -123,6 +103,31 @@ function modules.services.command:remove(commandstr)
         modules.libraries.logging:debug("services.command", "Command removed: " .. commandstr)
     else
         modules.libraries.logging:warning("services.command", "Command not found: " .. commandstr)
+    end
+end
+
+function modules.services.command:run(command, full_message, player, args)
+    if self.commands[command] then
+        local hasPerm = false
+        for _,perm in pairs(self.commands[command].perms) do
+            modules.libraries.logging:debug("services.command", "Checking permission: " .. perm .. " for command: " .. command)
+            if (player and player:hasPerm(perm)) then
+                modules.libraries.logging:debug("services.command", "Player has permission: " .. perm .. " for command: " .. command)
+                hasPerm = true
+                break
+            end
+        end
+        self.commands[command]:run(player, full_message, command, args, hasPerm)
+    elseif not self.commands[command] then
+        for _, cmd in pairs(self.commands) do
+            for _, alias in pairs(cmd.alias) do
+                if alias == command then
+                    cmd:run(player, full_message, command, args)
+                    return
+                end
+            end
+        end
+        modules.libraries.logging:warning("services.command", "Command not found: " .. command)
     end
 end
 
