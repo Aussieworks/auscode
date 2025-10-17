@@ -42,6 +42,7 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
         server.despawnVehicle(self.id, is_instant or false)
     end
 
+<<<<<<< HEAD
     function vehicle:getInfo(update)
         self.info = (update and server.getVehicleComponents(self.id) or (self.info or server.getVehicleComponents(self.id)))
         return self.info
@@ -56,5 +57,7 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
         return (update and self:getInfo(update) or (self.info and self.info.components or self:getInfo(update).components))
     end
 
+=======
+>>>>>>> b44d1ee7267fd09cc2d27808470fc4a67a41ffc8
     return vehicle
 end
