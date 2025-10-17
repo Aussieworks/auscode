@@ -63,7 +63,6 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         server.despawnVehicleGroup(self.groupId, is_instant or false)
     end
 
-<<<<<<< HEAD
     function vehicleGroup:getInfo(update)
         local info = {}
         info["characters"] = info["characters"] or {}
@@ -89,7 +88,5 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         return info
     end
 
-=======
->>>>>>> b44d1ee7267fd09cc2d27808470fc4a67a41ffc8
     return vehicleGroup
 end
