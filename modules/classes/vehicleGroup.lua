@@ -5,7 +5,7 @@ modules.classes.vehicleGroup = {} -- table of vehicle functions
 ---@param spawnTime number|nil
 ---@param loaded boolean|nil
 ---@return VehicleGroup
-function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
+function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded, despawned)
     ---@class VehicleGroup
     local vehicleGroup = {
         _class = "VehicleGroup",
@@ -16,10 +16,12 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
         onDespawn = modules.libraries.event:create(),
         onLoaded = modules.libraries.event:create(),
         isLoaded = loaded or false,
+        isDespawned = despawned or false,
     }
 
     -- fires the onDespawn event
     function vehicleGroup:despawned()
+        self.isDespawned = true
         self.onDespawn:fire(self)
     end
 
@@ -86,6 +88,14 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded)
             end
         end
         return info
+    end
+
+    function vehicleGroup:setTooltip(text)
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:setTooltip(text)
+            end
+        end
     end
 
     return vehicleGroup

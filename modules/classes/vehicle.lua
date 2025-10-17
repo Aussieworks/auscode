@@ -56,5 +56,9 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
         return (update and self:getInfo(update) or (self.info and self.info.components or self:getInfo(update).components))
     end
 
+    function vehicle:setTooltip(text)
+        return server.setVehicleTooltip(self.id, text)
+    end
+
     return vehicle
 end

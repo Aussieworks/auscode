@@ -14,8 +14,10 @@ function auscode.player:toggleAntisteal(player, state)
     local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
     if #vehicles > 0 then
         for _, group in pairs(vehicles) do
-            group:setEditable(not player:getExtra("as"))
-            modules.libraries.logging:debug("AusCode","Set vehicle group: "..group.groupId.." editable to: "..tostring(not player:getExtra("as")))
+            if not group.isDespawned then
+                group:setEditable(not player:getExtra("as"))
+                modules.libraries.logging:debug("AusCode","Set vehicle group: "..group.groupId.." editable to: "..tostring(not player:getExtra("as")))
+            end
         end
     else
         modules.libraries.logging:debug("AusCode","No vehicle groups found for player "..player.name)
@@ -28,8 +30,10 @@ function auscode.player:togglePVP(player, state)
     local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
     if #vehicles > 0 then
         for _, group in pairs(vehicles) do
-            group:setInvulnerable(not player:getExtra("pvp"))
-            modules.libraries.logging:debug("AusCode","Set vehicle group: "..group.groupId.." Invulnerable to: "..tostring(not player:getExtra("pvp")))
+            if not group.isDespawned then
+                group:setInvulnerable(not player:getExtra("pvp"))
+                modules.libraries.logging:debug("AusCode","Set vehicle group: "..group.groupId.." Invulnerable to: "..tostring(not player:getExtra("pvp")))
+            end
         end
     else
         modules.libraries.logging:debug("AusCode","No vehicle groups found for player "..player.name)

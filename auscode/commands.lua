@@ -58,5 +58,5 @@ modules.services.command:create("runas", {"ra"}, {}, "run command as another pla
 end)
 
 modules.services.command:create("test", {}, {}, "test command", function(player, full_message, command, args, hasPerm)
-
+    g_savedata = {}
 end)
