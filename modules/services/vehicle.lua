@@ -61,7 +61,7 @@ function modules.services.vehicle:startService()
             vGroup:loaded()
             self.loadedVehicles[tostring(vGroup.groupId)] = vGroup
             self.loadingVehicles[tostring(vGroup.groupId)] = nil
-            self.onGroupload:fire(vGroup)
+            self.onGroupLoad:fire(vGroup)
             self:_save()
         end
     end)
