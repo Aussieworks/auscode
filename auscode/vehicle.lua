@@ -21,3 +21,7 @@ function auscode.vehicle:_start(safeMode)
     end)
     return true
 end
+
+function auscode.vehicle:_cleanup()
+    self.onGroupLoadConnection:disconnect()
+end

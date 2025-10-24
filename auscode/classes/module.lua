@@ -32,7 +32,8 @@ function auscode.classes.module:create(name, authors, description, version)
 
         safeMode = safeMode or false
 
-        self.isInitialized = self:_init(safeMode) == true
+        self:_init(safeMode)
+        self.isInitialized = true
         return self.isInitialized
     end
 
@@ -44,7 +45,8 @@ function auscode.classes.module:create(name, authors, description, version)
 
         safeMode = safeMode or false
 
-        self.hasStarted = self:_start(safeMode) == true
+        self:_start(safeMode)
+        self.hasStarted = true
     end
 
     function module:restart(safeMode)

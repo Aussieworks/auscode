@@ -14,6 +14,10 @@ function auscode.player:_start(safeMode)
     end)
 end
 
+function auscode.player:_cleanup()
+    self.onJoinConnection:disconnect()
+end
+
 function auscode.player:toggleAntisteal(player, state)
     player:setExtra("as", state or not player:getExtra("as"))
 
