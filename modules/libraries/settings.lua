@@ -68,6 +68,15 @@ function modules.libraries.settings:setDefault(name,default)
     self._settings[name].default = default
 end
 
+-- get the default value of the setting with the inputed name, if it does not exist returns nil
+---@param name string
+function modules.libraries.settings:getDefault(name)
+    if not self._settings[name] then
+        return
+    end
+    return self._settings[name].default
+end
+
 -- reset the value of the setting with the inputed name to its default value, if it does not exist do nothing
 ---@param name string
 function modules.libraries.settings:resetToDefault(name)

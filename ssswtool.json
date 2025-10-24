@@ -1,6 +1,6 @@
 {
 	"name": "auscode",
-	"entrypoint": "auscode/main.lua",
+	"entrypoint": "auscode/init.lua",
 	"src": ["."],
 	"out": "{SW_SAVE}/data/missions/{NAME}/script.lua",
 	"transformers": {

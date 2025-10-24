@@ -10,7 +10,7 @@ function modules.services.vehicle:initService()
     self.onVehicleSpawn = modules.libraries.event:create()
     self.onVehicleLoad = modules.libraries.event:create()
     self.onVehicleDespawn = modules.libraries.event:create()
-    self.onGroupload = modules.libraries.event:create()
+    self.onGroupLoad = modules.libraries.event:create()
     self.onGroupDespawn = modules.libraries.event:create()
 end
 

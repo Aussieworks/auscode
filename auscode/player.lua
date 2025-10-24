@@ -1,12 +1,18 @@
-auscode.player = {} -- player related functions
+---@class ACPlayer: ACModule
+auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player handleing for auscode") -- player related functions
 
----@param player Player
-modules.services.player.onJoin:connect(function(player)
-    auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
-    auscode.player:togglePVP(player, player:getExtra("pvp") or false)
+function auscode.player:_init(safeMode)
+    return true
+end
 
-    modules.libraries.chat:announce("AusCode", "Welcome " .. player.name .. "!")
-end)
+function auscode.player:_start(safeMode)
+    self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
+        auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
+        auscode.player:togglePVP(player, player:getExtra("pvp") or false)
+
+        modules.libraries.chat:announce("AusCode", "Welcome " .. player.name .. "!")
+    end)
+end
 
 function auscode.player:toggleAntisteal(player, state)
     player:setExtra("as", state or not player:getExtra("as"))
