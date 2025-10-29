@@ -17,7 +17,7 @@ function modules.libraries.gsave:loadService(name)
     self:_checkGsave(name)
 
     if not g_savedata.modules.services[name] then
-        modules.libraries.logging:debug("gsave:loadService", "Service '" .. name .. "' not found in g_savedata, returning empty table.")
+        modules.libraries.logging:debug("gsave:loadService", "Service '%s' not found in g_savedata, returning empty table.", name)
         self:_fixGsave(name)
         return {}
     end

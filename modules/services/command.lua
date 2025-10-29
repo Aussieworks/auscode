@@ -3,6 +3,8 @@
 modules.services.command = modules.services:createService("command", "Commands Service", {"ChickenMst"})
 
 function modules.services.command:initService()
+    self.onInvalidCommand = modules.classes.event:create()
+
     self.commands = {} -- table of commands
 end
 
@@ -10,7 +12,7 @@ function modules.services.command:startService()
     modules.libraries.callbacks:connect("onCustomCommand", function(full_message, peer_id, is_admin, is_auth, command, ...)
         if peer_id == -1 then return end -- ignore server sending commands
 
-        local command = self:cleanCommandString(command)
+        command = self:cleanCommandString(command)
 
         if not command or command == "" then modules.libraries.logging:info("services.command", "Empty command ignored") return end -- ignore empty commands
 
@@ -33,7 +35,7 @@ function modules.services.command:create(commandstr, alias, perms, description, 
     -- check if command already exists
     local existing_command = self.commands[commandstr]
     if existing_command then
-        modules.libraries.logging:warning("services.command", "Command already exists: " .. commandstr)
+        modules.libraries.logging:warning("services.command", "Command already exists: %s", commandstr)
         return
     end
 
@@ -42,17 +44,17 @@ function modules.services.command:create(commandstr, alias, perms, description, 
         for _, a in pairs(alias) do
             -- check if alias is the same as its command
             if self:cleanCommandString(a) == self:cleanCommandString(commandstr) then
-                modules.libraries.logging:warning("services.command", "Alias: "..a.." can't be the same as command: "..commandstr.." | aborting command creation")
+                modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as command: '%s' | aborting command creation", a, commandstr)
                 return
             end
             for _, cmd in pairs(self.commands) do
                 if type(cmd.alias) == "table" then
                     for _, existing_a in pairs(cmd.alias) do
                         if self:cleanCommandString(a) == self:cleanCommandString(existing_a) then -- check if alias is the same as another alias
-                            modules.libraries.logging:warning("services.command", "Alias: "..a.." for command: "..commandstr.." already exists | aborting command creation")
+                            modules.libraries.logging:warning("services.command", "Alias: '%s' for command: '%s' already exists | aborting command creation", a, commandstr)
                             return
                         elseif self:cleanCommandString(a) == self:cleanCommandString(cmd.commandstr) then -- check if alias is the same as another command
-                            modules.libraries.logging:warning("services.command", "Alias: "..a.." can't be the same as command: "..cmd.commandstr.." | aborting command creation")
+                            modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as command: '%s' | aborting command creation", a, cmd.commandstr)
                             return
                         end
                     end
@@ -66,7 +68,7 @@ function modules.services.command:create(commandstr, alias, perms, description, 
 
     -- if didnt return false, create command
     local command = modules.classes.command:create(commandstr, alias, perms, description, func)
-    modules.libraries.logging:debug("services.command", "Command created: " .. commandstr)
+    modules.libraries.logging:debug("services.command", "Command created: %s", commandstr)
 
     self.commands[commandstr] = command -- add command to table
 
@@ -78,9 +80,9 @@ end
 function modules.services.command:enable(commandstr)
     if self.commands[commandstr] then
         self.commands[commandstr]:enable()
-        modules.libraries.logging:debug("services.command", "Command enabled: " .. commandstr)
+        modules.libraries.logging:debug("services.command", "Command enabled: %s", commandstr)
     else
-        modules.libraries.logging:warning("services.command", "Command not found: " .. commandstr)
+        modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
     end
 end
 
@@ -89,9 +91,9 @@ end
 function modules.services.command:disable(commandstr)
     if self.commands[commandstr] then
         self.commands[commandstr]:disable()
-        modules.libraries.logging:debug("services.command", "Command disabled: " .. commandstr)
+        modules.libraries.logging:debug("services.command", "Command disabled: %s", commandstr)
     else
-        modules.libraries.logging:warning("services.command", "Command not found: " .. commandstr)
+        modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
     end
 end
 
@@ -100,9 +102,9 @@ end
 function modules.services.command:remove(commandstr)
     if self.commands[commandstr] then
         self.commands[commandstr] = nil
-        modules.libraries.logging:debug("services.command", "Command removed: " .. commandstr)
+        modules.libraries.logging:debug("services.command", "Command removed: %s", commandstr)
     else
-        modules.libraries.logging:warning("services.command", "Command not found: " .. commandstr)
+        modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
     end
 end
 
@@ -110,9 +112,9 @@ function modules.services.command:run(command, full_message, player, args)
     if self.commands[command] then
         local hasPerm = false
         for _,perm in pairs(self.commands[command].perms) do
-            modules.libraries.logging:debug("services.command", "Checking permission: " .. perm .. " for command: " .. command)
+            modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", command)
             if (player and player:hasPerm(perm)) then
-                modules.libraries.logging:debug("services.command", "Player has permission: " .. perm .. " for command: " .. command)
+                modules.libraries.logging:debug("services.command", "Player has permission: %s for command: %s", perm, command)
                 hasPerm = true
                 break
             end
@@ -127,7 +129,8 @@ function modules.services.command:run(command, full_message, player, args)
                 end
             end
         end
-        modules.libraries.logging:warning("services.command", "Command not found: " .. command)
+        modules.libraries.logging:info("services.command", "Command not found: %s", command)
+        self.onInvalidCommand:fire(command, full_message, player, args)
     end
 end
 

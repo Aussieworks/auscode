@@ -39,16 +39,16 @@ function modules.classes.addon:create(name, version, description, authors)
     -- initializes the addon, runs the init function of the addon
     function addon:_init()
         if not self.enabled then
-            modules.libraries.logging:debug("addon:_init()", "Addon '" .. self.name .. "' is disabled, skipping initialization.")
+            modules.libraries.logging:debug("addon:_init()", "Addon '%s' is disabled, skipping initialization.", self.name)
             return
         end
 
         if self.hasInit then
-            modules.libraries.logging:warning("addon:_init()", "Addon '" .. self.name .. "' is already initialized.")
+            modules.libraries.logging:warning("addon:_init()", "Addon '%s' is already initialized.", self.name)
             return
         end
 
-        modules.libraries.logging:debug("addon:_init()", "Initializing addon '" .. self.name .. "'")
+        modules.libraries.logging:debug("addon:_init()", "Initializing addon '%s'", self.name)
         self.hasInit = true
 
         if not self.initAddon then
@@ -62,17 +62,17 @@ function modules.classes.addon:create(name, version, description, authors)
     -- starts the addon, runs the start function of the addon
     function addon:_start()
         if not self.enabled then
-            modules.libraries.logging:debug("addon:_start()", "Addon '" .. self.name .. "' is disabled, skipping start.")
+            modules.libraries.logging:debug("addon:_start()", "Addon '%s' is disabled, skipping start.", self.name)
             return
         end
 
         if self.hasStarted then
-            modules.libraries.logging:warning("addon:_start()", "Attempted to start addon '" .. self.name .. "' that is already started.")
+            modules.libraries.logging:warning("addon:_start()", "Attempted to start addon '%s' that is already started.", self.name)
             return
         end
 
         if not self.hasInit then
-            modules.libraries.logging:error("addon:_start()", "Attempted to start addon '" .. self.name .. "' that is not initialized.")
+            modules.libraries.logging:error("addon:_start()", "Attempted to start addon '%s' that is not initialized.", self.name)
             return
         end
 

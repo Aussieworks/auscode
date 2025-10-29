@@ -65,7 +65,7 @@ function modules.services.ui:removeWidget(id)
     local widget = self:getWidget(id)
 
     if not widget then
-        modules.libraries.logging:warning("services.ui", "Widget with ID " .. id .. " does not exist")
+        modules.libraries.logging:warning("services.ui", "Widget with ID '%s' does not exist", id)
         return
     end
 
@@ -140,9 +140,28 @@ end
 ---@param parentId integer|nil The ID of the parent object or vehicle
 ---@param player Player|nil The player to show the map object to (default is nil, which means all players)
 ---@param radius number|nil The radius of the map object (default is 0)
+---@return MapObjectWidget
 function modules.services.ui:createMapObject(label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius)
     local id = server.getMapID()
     local widget = modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius)
+
+    widget:update()
+    self:_addWidget(widget)
+    self:_save()
+
+    return widget
+end
+
+-- creates a map label widget
+---@param text string|nil The text to display on the map label
+---@param labelType number|nil The type of label to display
+---@param x number|nil The x position in the world
+---@param z number|nil The z position in the world
+---@param player Player|nil The player to show the map label to (default is nil, which means all players)
+---@return MapLabelWidget
+function modules.services.ui:createMapLabel(text, labelType, x, z, player)
+    local id = server.getMapID()
+    local widget = modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, player)
 
     widget:update()
     self:_addWidget(widget)
@@ -166,6 +185,9 @@ function modules.services.ui:_load()
         ["mapObject"] = function(widget)
             return modules.classes.widgets.mapObject:create(math.floor(widget.id), widget.label, widget.hoverLabel, widget.color, widget.posType, widget.markerType, widget.x, widget.z, widget.parentId, widget.player, widget.radius)
         end,
+        ["mapLabel"] = function(widget)
+            return modules.classes.widgets.mapLabel:create(math.floor(widget.id), widget.text, widget.labelType, widget.x, widget.z, widget.player)
+        end
     } -- table of functions to rebuild widgets mapped by widget type
     local service = modules.libraries.gsave:loadService("ui")
 
@@ -181,7 +203,7 @@ function modules.services.ui:_load()
                 self:_addWidget(rebuiltWidget)
                 rebuiltWidget:update()
             else
-                modules.libraries.logging:warning("ui:_load", "Unknown widget type: " .. tostring(widget.type))
+                modules.libraries.logging:warning("ui:_load", "Unknown widget type: '%s'", tostring(widget.type))
             end
         end
     end

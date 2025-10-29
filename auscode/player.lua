@@ -49,3 +49,16 @@ function auscode.player:togglePVP(player, state)
         modules.libraries.logging:debug("AusCode","No vehicle groups found for player "..player.name)
     end
 end
+
+---@param player Player
+function auscode.player:toggleUI(player, state)
+    player:setExtra("ui", state or not player:getExtra("ui"))
+
+    local widgets = modules.services.ui:getPlayersShownWidgets(player)
+    for _, widget in pairs(widgets) do
+        if widget.type == "popupScreen" then
+            widget.visible = player:getExtra("ui")
+            widget:update()
+        end
+    end
+end

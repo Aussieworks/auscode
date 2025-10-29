@@ -18,8 +18,9 @@ modules.libraries.logging.loggingMode = modules.libraries.settings:getValue("log
 ---@param logtype number
 ---@param title string
 ---@param message string
-function modules.libraries.logging:log(logtype, title, message)
-    local bundledlog = self:_bundleLog(self:_logLevelToString(logtype), title, message) -- bundle the log into a table for easy access
+---@param ... any
+function modules.libraries.logging:log(logtype, title, message, ...)
+    local bundledlog = self:_bundleLog(self:_logLevelToString(logtype), title, message, ...) -- bundle the log into a table for easy access
     local formattedlog = self:_formatLog(bundledlog) -- format the log into a string for easy access
     table.insert(self.logs, bundledlog) -- add the log to the logs table
 
@@ -28,7 +29,8 @@ function modules.libraries.logging:log(logtype, title, message)
     elseif self.loggingMode == "chat" and logtype >= self.logLevel then
         modules.libraries.chat:announce("Modules",formattedlog) -- print the log to the chat
     elseif self.loggingMode ~= "console" and self.loggingMode ~= "chat" then
-        self:error("Logging", "Invalid logging mode: " .. self.loggingMode) -- print an error to the console
+        self.loggingMode = "chat"
+        self:error("Logging", "Invalid logging mode: '%s'", self.loggingMode) -- print an error to the console
     end
 end
 
@@ -36,12 +38,13 @@ end
 ---@param logtype string
 ---@param title string
 ---@param message string
+---@param ... any
 ---@return table log
-function modules.libraries.logging:_bundleLog(logtype, title, message)
+function modules.libraries.logging:_bundleLog(logtype, title, message, ...)
     local log = {}
     log.type = logtype
     log.title = title
-    log.message = message
+    log.message = (... and tostring(message):format(...) or tostring(message))
     return log
 end
 
@@ -90,24 +93,28 @@ end
 
 ---@param title string
 ---@param message string
-function modules.libraries.logging:error(title, message)
-    self:log(self.logTypes.ERROR, title, message)
+---@param ... any
+function modules.libraries.logging:error(title, message, ...)
+    self:log(self.logTypes.ERROR, title, message, ...)
 end
 
 ---@param title string
 ---@param message string
-function modules.libraries.logging:warning(title, message)
-    self:log(self.logTypes.WARNING, title, message)
+---@param ... any
+function modules.libraries.logging:warning(title, message, ...)
+    self:log(self.logTypes.WARNING, title, message, ...)
 end
 
 ---@param title string
 ---@param message string
-function modules.libraries.logging:info(title, message)
-    self:log(self.logTypes.INFO, title, message)
+---@param ... any
+function modules.libraries.logging:info(title, message, ...)
+    self:log(self.logTypes.INFO, title, message, ...)
 end
 
 ---@param title string
 ---@param message string
-function modules.libraries.logging:debug(title, message)
-    self:log(self.logTypes.DEBUG, title, message)
+---@param ... any
+function modules.libraries.logging:debug(title, message, ...)
+    self:log(self.logTypes.DEBUG, title, message, ...)
 end

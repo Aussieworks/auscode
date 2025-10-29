@@ -32,7 +32,7 @@ function modules.classes.command:create(commandstr, alias, perms, description, f
         if self.enabled then
             self.func(...)
         else
-            modules.libraries.logging:warning("libraries.commands", "Command is disabled: " .. self.commandstr)
+            modules.libraries.logging:warning("command:run()", "Command is disabled: '%s'", self.commandstr)
         end
     end
 

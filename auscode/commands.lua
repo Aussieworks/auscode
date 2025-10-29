@@ -96,6 +96,29 @@ function auscode.commands:_createCommands()
         auscode:restart(true)
     end))
 
+    self:add(modules.services.command:create("ui", {}, {}, "test command", function (player, full_message, command, args, hasPerm)
+		if args[1] == "clear" then
+			local widgets = modules.services.ui:getPlayersShownWidgets(player)
+			for _, widget in pairs(widgets) do
+				widget:destroy()
+				modules.services.ui:removeWidget(widget.id)
+			end
+			return
+		elseif args[1] == "list" then
+			local widgets = modules.services.ui:getPlayersShownWidgets(player)
+			local str = "Widgets:\n"
+			for _, widget in pairs(widgets) do
+				str = str .. "ID: " .. widget.id .. ", Type: " .. widget.type .. ", Player: " .. (widget.player and widget.player.name or "Nil") .. "\n"
+			end
+			modules.libraries.logging:info("ui", str)
+			return
+		elseif args[1] == "toggle" then
+			auscode.player:toggleUI(player)
+        elseif args[1] == "create" then
+            local w = modules.services.ui:createPopupScreen("Loading", 0, 0, player:getExtra("ui"), player)
+		end
+	end))
+
 
     self.onCommandCreation:fire()
 

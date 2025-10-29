@@ -11,7 +11,7 @@ modules.services.ordered = {}
 function modules.services:createService(name, description, authors)
     self.ordered[#self.ordered + 1] = name -- add the service name to the ordered list
     if self.created[name] then
-        modules.libraries.logging:error("services:create()", "Attempted to create service '" .. name .. "' that already exists.")
+        modules.libraries.logging:error("services:create()", "Attempted to create service '%s' that already exists.",  name)
     end
 
     local service = modules.classes.service:create(name, description or "N/A", authors or {}) -- create a new service
@@ -28,11 +28,11 @@ function modules.services:getService(name)
     local service = self.created[name] -- get the service by name
 
     if not service then
-        modules.libraries.logging:error("services:getService()", "Attempted to get service '" .. name .. "' that does not exist.")
+        modules.libraries.logging:error("services:getService()", "Attempted to get service '%s' that does not exist.", name)
     end
 
     if not service.hasInit then
-        modules.libraries.logging:warning("services:getService()", "Attempted to get service '" .. name .. "' that is not initialized.")
+        modules.libraries.logging:warning("services:getService()", "Attempted to get service '%s' that is not initialized.", name)
     end
 
     return service -- return the service

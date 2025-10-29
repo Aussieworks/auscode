@@ -19,13 +19,13 @@ function modules.services.player:startService()
 
     modules.libraries.callbacks:connect("onPlayerJoin", function(steam_id, name, peer_id, is_admin, is_auth)
         name = self:_cleanName(name)
-        modules.libraries.logging:debug("onPlayerJoin", "Player joined with steam_id: " .. steam_id .. ", name: " .. name .. ", peer_id: " .. peer_id)
+        modules.libraries.logging:debug("onPlayerJoin", "Player joined with steam_id: '%s', name: '%s', peer_id: '%s'", steam_id, name, peer_id)
         local player = self:getPlayer(tostring(steam_id))
 
         if not player then
             player = modules.classes.player:create(peer_id, steam_id, name, is_admin, is_auth)
             if not player then
-                modules.libraries.logging:warning("services.player", "Failed to create player class: " .. steam_id)
+                modules.libraries.logging:warning("services.player", "Failed to create player class: '%s'", steam_id)
                 return
             end
         end
@@ -46,7 +46,7 @@ function modules.services.player:startService()
 
         name = self:_cleanName(name)
 
-        modules.libraries.logging:debug("onPlayerLeave", "Player left with steam_id: " .. (steam_id or "unknown") .. ", name: " .. name .. ", peer_id: " .. peer_id)
+        modules.libraries.logging:debug("onPlayerLeave", "Player left with steam_id: '%s', name: '%s', peer_id: '%s'", (steam_id or "unknown"), name, peer_id)
         local player = self:getPlayer(tostring(steam_id))
 
         if player then
@@ -64,7 +64,7 @@ function modules.services.player:startService()
             local playerObjId = server.getPlayerCharacterID(player.peerId)
             if playerObjId == object_id then
                 player.objectId = playerObjId
-                modules.libraries.logging:debug("onObjectLoad", "Player loaded with steam_id: " .. player.steamId .. ", name: " .. player.name .. ", peer_id: " .. player.peerId)
+                modules.libraries.logging:debug("onObjectLoad", "Player loaded with steam_id: '%s', name: '%s', peer_id: '%s'",player.steamId, player.name, player.peerId)
                 self:_save() -- save the player service
                 self.onLoad:fire(player) -- fire the event
             end
@@ -77,10 +77,10 @@ end
 ---@return Player|nil
 function modules.services.player:getPlayer(steam_id)
     if self.players[tostring(steam_id)] then
-        modules.libraries.logging:debug("services.player:getPlayer", "Found player with steam_id: " .. steam_id)
+        modules.libraries.logging:debug("services.player:getPlayer", "Found player with steam_id: '%s'", steam_id)
         return self.players[tostring(steam_id)] -- return the player object if found
     end
-    modules.libraries.logging:info("services.player:getPlayer", "Player not found with steam_id: " .. steam_id)
+    modules.libraries.logging:info("services.player:getPlayer", "Player not found with steam_id: '%s'", steam_id)
 end
 
 -- get a player by their peer_id
@@ -88,10 +88,10 @@ end
 ---@return Player|nil
 function modules.services.player:getPlayerByPeer(peer_id)
     if self.peerIdIndex[tostring(peer_id)] ~= nil then
-        modules.libraries.logging:debug("services.player:getPlayerByPeer", "Found steam_id: " .. self.peerIdIndex[tostring(peer_id)] .. " from peer_id: " .. tostring(peer_id))
+        modules.libraries.logging:debug("services.player:getPlayerByPeer", "Found steam_id: '%s' from peer_id: '%s'", self.peerIdIndex[tostring(peer_id)], tostring(peer_id))
         local player = self:getPlayer(self.peerIdIndex[tostring(peer_id)])
         if player then
-            modules.libraries.logging:debug("services.player:getPlayerByPeer", "Found player: " .. player.name .. " from peer_id: " .. player.peerId)
+            modules.libraries.logging:debug("services.player:getPlayerByPeer", "Found player: '%s' from peer_id: '%s'", player.name, player.peerId)
             return player -- return the player object if found
         end
     end
@@ -137,7 +137,7 @@ function modules.services.player:_load()
                 goto continue -- skip if playerData is nil or steamId is missing
             end
             if playerData.steamId == "0" then
-                modules.libraries.logging:debug("services.player:_load", "Skiped loading player: "..playerData.name)
+                modules.libraries.logging:debug("services.player:_load", "Skiped loading player: '%s'", playerData.name)
                 goto continue -- skip players with steam_id 0
             end
             local player = modules.classes.player:create(
@@ -151,10 +151,10 @@ function modules.services.player:_load()
                 playerData.extra
             )
             if not player then
-                modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: " .. playerData.steam_id)
+                modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: '%s'", playerData.steam_id)
             else
                 self.players[tostring(playerData.steamId)] = player -- add the player to the table
-                modules.libraries.logging:debug("services.player:_load", "Loaded player: " .. player.name .. " with steam_id: " .. player.steamId)
+                modules.libraries.logging:debug("services.player:_load", "Loaded player: " .. player.name .. " with steam_id: '%s'", player.steamId)
             end
             ::continue::
         end
@@ -164,7 +164,7 @@ function modules.services.player:_load()
 
     for _, player in pairs(server.getPlayers()) do
         if player.steam_id == 0 then
-            modules.libraries.logging:debug("services.player:_load", "Skiped loading player: "..player.name)
+            modules.libraries.logging:debug("services.player:_load", "Skiped loading player: '%s'", player.name)
             goto continue -- skip players with steam_id 0
         end
         local existingPlayer = self:getPlayer(tostring(player.steam_id))
@@ -179,10 +179,10 @@ function modules.services.player:_load()
             )
             if newPlayer then
                 self.players[tostring(player.steam_id)] = newPlayer -- add the player to the table
-                modules.libraries.logging:debug("services.player:_load", "Created player class for player: " .. newPlayer.name .. " with steam_id: " .. newPlayer.steamId)
+                modules.libraries.logging:debug("services.player:_load", "Created player class for player: '%s' with steam_id: '%s'", newPlayer.name, newPlayer.steamId)
                 modules.services.player:_save() -- save the player service
             else
-                modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: " .. player.steam_id)
+                modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: '%s'", player.steam_id)
             end
         end
         ::continue::
