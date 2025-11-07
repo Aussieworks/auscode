@@ -18,7 +18,7 @@ function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, 
     local map = {
         _class = "MapObjectWidget",
         type = "mapObject",
-        player = player,
+        playerId = player and player.steamId or nil,
         id = id,
         label = label or "",
         hoverLabel = hoverLabel or "",
@@ -32,22 +32,23 @@ function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, 
     }
 
     -- update the ui object for the player
-    ---@param player Player
+    ---@param player Player|nil
     function map:_update(player)
-        server.addMapObject(player.peerId, self.id, self.posType, self.markerType, self.x, self.z, self.x, self.z, (self.posType == 1 and self.parentId or 0), (self.posType == 2 and self.parentId or 0), self.label, self.radius, self.hoverLabel, self.color.r, self.color.g, self.color.b, self.color.a)
+        server.addMapObject(player and player.peerId or -1, self.id, self.posType, self.markerType, self.x, self.z, self.x, self.z, (self.posType == 1 and self.parentId or 0), (self.posType == 2 and self.parentId or 0), self.label, self.radius, self.hoverLabel, self.color.r, self.color.g, self.color.b, self.color.a)
     end
 
     -- remove the ui object from the player
-    ---@param player Player
+    ---@param player Player|nil
     function map:_destroy(player)
-        server.removeMapObject(player.peerId, self.id)
+        server.removeMapObject(player and player.peerId or -1, self.id)
     end
 
     -- update the ui object
     function map:update()
-        if self.player then
-            self:_destroy(self.player)
-            self:_update(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
+            self:_update(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -58,8 +59,9 @@ function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, 
 
     -- destroy the ui object
     function map:destroy()
-        if self.player then
-            self:_destroy(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -68,7 +70,7 @@ function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, 
     end
 
     function map:save()
-        modules.services.ui:_save()
+        modules.services.ui:_addWidget(self)
     end
 
     return map

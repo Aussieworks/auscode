@@ -17,7 +17,7 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
     local popup = {
         _class = "PopupWidget",
         type = "popup",
-        player = player,
+        playerId = player and player.steamId or nil,
         id = id,
         visible = visible or true,
         text = text or "",
@@ -30,22 +30,23 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
     }
 
     -- update the ui object for the player
-    ---@param player Player
+    ---@param player Player|nil
     function popup:_update(player)
-        server.setPopup(player.peerId, self.id, "", self.visible, self.text, self.x, self.y, self.z, self.renderDistance, (self.vehicleParent and self.vehicleParent.id or nil), self.objectParent)
+        server.setPopup(player and player.peerId or -1, self.id, "", self.visible, self.text, self.x, self.y, self.z, self.renderDistance, (self.vehicleParent and self.vehicleParent.id or nil), self.objectParent)
     end
 
     -- remove the ui object from the player
-    ---@param player Player
+    ---@param player Player|nil
     function popup:_destroy(player)
-        server.setPopup(player.peerId, self.id, "", false, "", 0, 0, 0, 0)
+        server.setPopup(player and player.peerId or -1, self.id, "", false, "", 0, 0, 0, 0)
     end
 
     -- update the ui object
     function popup:update()
-        if self.player then
-            self:_destroy(self.player)
-            self:_update(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
+            self:_update(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -56,8 +57,9 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
 
     -- destroy the ui object
     function popup:destroy()
-        if self.player then
-            self:_destroy(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -66,7 +68,7 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
     end
 
     function popup:save()
-        modules.services.ui:_save()
+        modules.services.ui:_addWidget(self)
     end
 
     return popup

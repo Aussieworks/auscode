@@ -103,7 +103,6 @@ function modules.services.ui:createPopupScreen(text, x, y, visable, player)
 
     widget:update()
     self:_addWidget(widget)
-    self:_save()
 
     return widget
 end
@@ -124,8 +123,6 @@ function modules.services.ui:createPopup(text, x, y, z, renderDistance, visable,
 
     widget:update()
     self:_addWidget(widget)
-    self:_save()
-
     return widget
 end
 
@@ -147,7 +144,6 @@ function modules.services.ui:createMapObject(label, hoverLabel, color, posType, 
 
     widget:update()
     self:_addWidget(widget)
-    self:_save()
 
     return widget
 end
@@ -165,7 +161,6 @@ function modules.services.ui:createMapLabel(text, labelType, x, z, player)
 
     widget:update()
     self:_addWidget(widget)
-    self:_save()
 
     return widget
 end
@@ -200,8 +195,8 @@ function modules.services.ui:_load()
         for _, widget in pairs(service.widgets) do
             if widgetRebuildIndex[widget.type] then
                 local rebuiltWidget = widgetRebuildIndex[widget.type](widget)
-                self:_addWidget(rebuiltWidget)
                 rebuiltWidget:update()
+                self:_addWidget(rebuiltWidget)
             else
                 modules.libraries.logging:warning("ui:_load", "Unknown widget type: '%s'", tostring(widget.type))
             end

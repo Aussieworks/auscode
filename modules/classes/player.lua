@@ -149,7 +149,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     end
 
     function player:save()
-        modules.services.player:_save()
+        modules.services.player:_updatePlayer(self)
     end
 
     return player

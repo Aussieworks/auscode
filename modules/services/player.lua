@@ -218,3 +218,10 @@ end
 function modules.services.player:_cleanName(name)
     return string.gsub(name, "[<]", "")
 end
+
+---@param player Player
+function modules.services.player:_updatePlayer(player)
+    self.players[tostring(player.steamId)] = player
+    self.peerIdIndex[tostring(player.peerId)] = tostring(player.steamId)
+    self:_save()
+end

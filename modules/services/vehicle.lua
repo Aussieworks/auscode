@@ -124,13 +124,19 @@ end
 function modules.services.vehicle:getPlayersVehicleGroups(player)
     local groups = {}
     for _, vGroup in pairs(self.loadedVehicles) do
-        if modules.services.player:isSamePlayer(vGroup.owner,player) then
-            table.insert(groups, vGroup)
+        local owner = vGroup:getOwner()
+        if owner then
+            if modules.services.player:isSamePlayer(owner,player) then
+                table.insert(groups, vGroup)
+            end
         end
     end
     for _, vGroup in pairs(self.loadingVehicles) do
-        if modules.services.player:isSamePlayer(vGroup.owner,player) then
-            table.insert(groups, vGroup)
+        local owner = vGroup:getOwner()
+        if owner then
+            if modules.services.player:isSamePlayer(owner,player) then
+                table.insert(groups, vGroup)
+            end
         end
     end
     return groups
@@ -153,7 +159,7 @@ function modules.services.vehicle:_load()
     if service.loadingVehicles then
         local rebuilt = {} -- table to rebuild loading vehicles
         for _,vGroup in pairs(service.loadingVehicles) do
-            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.owner.steamId), vGroup.spawnTime)
+            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.ownerId), vGroup.spawnTime)
             for _, vehicle in pairs(vGroup.vehicles) do
                 local rebuiltVehicle = modules.classes.vehicle:create(vehicle.id, vGroup.groupId, vehicle.isLoaded)
                 rebuiltGroup:addVehicle(rebuiltVehicle)
@@ -166,7 +172,7 @@ function modules.services.vehicle:_load()
     if service.loadedVehicles then
         local rebuilt = {} -- table to rebuild loading vehicles
         for _,vGroup in pairs(service.loadedVehicles) do
-            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.owner.steamId), vGroup.spawnTime, vGroup.isLoaded)
+            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.ownerId), vGroup.spawnTime, vGroup.isLoaded)
             for _, vehicle in pairs(vGroup.vehicles) do
                 local rebuiltVehicle = modules.classes.vehicle:create(vehicle.id, vGroup.groupId, vehicle.isLoaded, vehicle.data, vehicle.info)
                 rebuiltGroup:addVehicle(rebuiltVehicle)
@@ -175,4 +181,14 @@ function modules.services.vehicle:_load()
         end
         self.loadedVehicles = rebuilt
     end
+end
+
+---@param vehicle VehicleGroup
+function modules.services.vehicle:_updateVehicle(vehicle)
+    if self.loadedVehicles[vehicle.groupId] then
+        self.loadedVehicles[vehicle.groupId] = vehicle
+    elseif self.loadingVehicles[vehicle.groupId] then
+        self.loadingVehicles[vehicle.groupId] = vehicle
+    end
+    self:_save()
 end

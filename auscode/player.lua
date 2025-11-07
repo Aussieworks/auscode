@@ -53,12 +53,14 @@ end
 ---@param player Player
 function auscode.player:toggleUI(player, state)
     player:setExtra("ui", state or not player:getExtra("ui"))
+    player:save()
 
     local widgets = modules.services.ui:getPlayersShownWidgets(player)
     for _, widget in pairs(widgets) do
         if widget.type == "popupScreen" then
             widget.visible = player:getExtra("ui")
             widget:update()
+            widget:save()
         end
     end
 end

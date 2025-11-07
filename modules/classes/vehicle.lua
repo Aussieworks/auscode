@@ -61,7 +61,9 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
     end
 
     function vehicle:save()
-        modules.services.vehicle:_save()
+        local group = modules.services.vehicle:getVehicleGroup(self.id)
+        group:addVehicle(self)
+        group:save()
     end
 
     return vehicle

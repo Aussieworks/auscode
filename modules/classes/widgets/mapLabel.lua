@@ -12,7 +12,7 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
     local label = {
         _class = "MapLabelWidget",
         type = "mapLabel",
-        player = player,
+        playerId = player and player.steamId or nil,
         id = id,
         text = text or "",
         labelType = labelType or 0,
@@ -21,22 +21,23 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
     }
 
     -- update the label for the player
-    ---@param player Player
+    ---@param player Player|nil
     function label:_update(player)
-        server.addMapLabel(player.peerId, self.id, self.labelType, self.text, self.x, self.z)
+        server.addMapLabel(player and player.peerId or -1, self.id, self.labelType, self.text, self.x, self.z)
     end
 
     -- remove the label from the player
-    ---@param player Player
+    ---@param player Player|nil
     function label:_destroy(player)
-        server.removeMapLabel(player.peerId, self.id)
+        server.removeMapLabel(player and player.peerId or -1, self.id)
     end
 
     -- update the label
     function label:update()
-        if self.player then
-            self:_destroy(self.player)
-            self:_update(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
+            self:_update(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -47,8 +48,9 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
 
     -- destroy the label
     function label:destroy()
-        if self.player then
-            self:_destroy(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -57,7 +59,7 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
     end
 
     function label:save()
-        modules.services.ui:_save()
+        modules.services.ui:_addWidget(self)
     end
 
     return label

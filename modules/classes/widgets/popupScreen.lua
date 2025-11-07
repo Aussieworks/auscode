@@ -13,31 +13,32 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
     local screen = {
         _class = "PopupScreenWidget",
         type = "popupScreen",
-        player = player,
+        playerId = player and player.steamId or nil,
         id = id,
-        visible = visible or true,
+        visible = visible or false,
         text = text or "",
         x = x or 0, -- Default horizontal position
         y = y or 0, -- Default vertical position
     }
 
     -- update the ui object for the player
-    ---@param player Player
+    ---@param player Player|nil
     function screen:_update(player)
-        server.setPopupScreen(player.peerId, self.id, "", self.visible, self.text, self.x, self.y)
+        server.setPopupScreen(player and player.peerId or -1, self.id, "", self.visible, self.text, self.x, self.y)
     end
 
     -- remove the ui object from the player
-    ---@param player Player
+    ---@param player Player|nil
     function screen:_destroy(player)
-        server.setPopupScreen(player.peerId, self.id, "", false, "", 0, 0)
+        server.setPopupScreen(player and player.peerId or -1, self.id, "", false, "", 0, 0)
     end
 
     -- update the ui object
     function screen:update()
-        if self.player then
-            self:_destroy(self.player)
-            self:_update(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
+            self:_update(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -48,8 +49,9 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
 
     -- destroy the ui object
     function screen:destroy()
-        if self.player then
-            self:_destroy(self.player)
+        if self.playerId then
+            local player = modules.services.player:getPlayer(self.playerId)
+            self:_destroy(player)
         else
             for _, player in pairs(modules.services.player:getOnlinePlayers()) do
                 self:_destroy(player)
@@ -58,7 +60,7 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
     end
 
     function screen:save()
-        modules.services.ui:_save()
+        modules.services.ui:_addWidget(self)
     end
 
     return screen
