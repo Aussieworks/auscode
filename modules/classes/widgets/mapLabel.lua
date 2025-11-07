@@ -56,5 +56,9 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
         end
     end
 
+    function label:save()
+        modules.services.ui:_save()
+    end
+
     return label
 end

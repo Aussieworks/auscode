@@ -65,5 +65,9 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
         end
     end
 
+    function popup:save()
+        modules.services.ui:_save()
+    end
+
     return popup
 end

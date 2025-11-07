@@ -15,7 +15,7 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
         type = "popupScreen",
         player = player,
         id = id,
-        visible = visible or false,
+        visible = visible or true,
         text = text or "",
         x = x or 0, -- Default horizontal position
         y = y or 0, -- Default vertical position
@@ -55,6 +55,10 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
                 self:_destroy(player)
             end
         end
+    end
+
+    function screen:save()
+        modules.services.ui:_save()
     end
 
     return screen

@@ -148,5 +148,9 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
         server.notify(self.peerId, title, message, notificationType)
     end
 
+    function player:save()
+        modules.services.player:_save()
+    end
+
     return player
 end

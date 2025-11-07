@@ -98,5 +98,9 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded,
         end
     end
 
+    function vehicleGroup:save()
+        modules.services.vehicle:_save()
+    end
+
     return vehicleGroup
 end

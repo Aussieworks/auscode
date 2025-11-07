@@ -60,5 +60,9 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
         return server.setVehicleTooltip(self.id, text)
     end
 
+    function vehicle:save()
+        modules.services.vehicle:_save()
+    end
+
     return vehicle
 end
