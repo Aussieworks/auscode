@@ -93,7 +93,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "test command", function(player, full_message, command, args, hasPerm)
-        auscode:restart(true)
+        modules.services:getService("ui")
     end))
 
     self:add(modules.services.command:create("ui", {}, {}, "test command", function (player, full_message, command, args, hasPerm)

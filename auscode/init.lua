@@ -11,7 +11,6 @@ auscode.restartCount = 0 -- number of times auscode has restarted (this does not
 
 -- load auscode modules
 require "auscode.classes"
-require "auscode.chat"
 require "auscode.player"
 require "auscode.commands"
 require "auscode.vehicle"

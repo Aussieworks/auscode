@@ -1,11 +1,11 @@
 ---@class uiService: Service
 modules.services.ui = modules.services:createService("ui", "service for handling UI",{"ChickenMst"})
 
-function modules.services.ui:_init()
+function modules.services.ui:initService()
     self.widgets = {} -- Store all UI widgets
 end
 
-function modules.services.ui:_start()
+function modules.services.ui:startService()
     if modules.addonReason ~= "create" then
         self:_load()
     end
