@@ -1,6 +1,6 @@
 local settings = {
     -- Logging settings
-    loggingLevel = {value = 1, default = 4}, -- Default log level set to ERROR
+    loggingLevel = {value = 2, default = 4}, -- Default log level set to ERROR
     loggingDetail = {value = "minimal", default = "full"}, -- Default logging detail set to full
     -- AusCode settings
     auscodeSafeMode = {value = false, default = false}, -- If AusCode should start in safe mode (use default settings)

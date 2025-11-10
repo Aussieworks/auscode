@@ -97,9 +97,9 @@ end
 ---@param y number The vertical position of the popup (default is 0)
 ---@param visable boolean Whether the popup should be visible (default is true)
 ---@param player Player|nil The player to show the popup to (default is nil, which means all players)
-function modules.services.ui:createPopupScreen(text, x, y, visable, player)
+function modules.services.ui:createPopupScreen(text, x, y, visable, player, name)
     local id = server.getMapID()
-    local widget = modules.classes.widgets.popupScreen:create(id, visable, text, x, y, player)
+    local widget = modules.classes.widgets.popupScreen:create(id, visable, text, x, y, player, name)
 
     widget:update()
     self:_addWidget(widget)
@@ -172,7 +172,7 @@ end
 function modules.services.ui:_load()
     local widgetRebuildIndex = {
         ["popupScreen"] = function(widget)
-            return modules.classes.widgets.popupScreen:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.player)
+            return modules.classes.widgets.popupScreen:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.player, widget.name)
         end,
         ["popup"] = function(widget)
             return modules.classes.widgets.popup:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.z, widget.player, widget.renderDistance, widget.vehicleParent, widget.objectParent)

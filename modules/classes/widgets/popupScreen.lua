@@ -1,7 +1,7 @@
 modules.classes.widgets.popupScreen = {}
 
 ---@return PopupScreenWidget
-function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, player)
+function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, player, name)
     ---@class PopupScreenWidget
     ---@field type string
     ---@field player Player|nil
@@ -19,6 +19,7 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
         text = text or "",
         x = x or 0, -- Default horizontal position
         y = y or 0, -- Default vertical position
+        name = name or ""
     }
 
     -- update the ui object for the player

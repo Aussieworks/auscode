@@ -28,6 +28,19 @@ function auscode:_start()
         end
     end
 
+    modules.services.task:create(10, function(task)
+        local players = modules.services.player:getOnlinePlayers()
+        for _, player in pairs(players) do
+            local widgets = modules.services.ui:getPlayersShownWidgets(player)
+            for _, widget in pairs(widgets) do
+                if widget.type == "popupScreen" and widget.name == "playerUi" then
+                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    widget:update()
+                end
+            end
+        end
+    end, true)
+
     modules.libraries.chat:announce("AusCode", "Hello from AusCode!")
 end
 

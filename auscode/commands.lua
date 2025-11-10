@@ -115,7 +115,7 @@ function auscode.commands:_createCommands()
 		elseif args[1] == "toggle" then
 			auscode.player:toggleUI(player)
         elseif args[1] == "create" then
-            local w = modules.services.ui:createPopupScreen("Loading", 0, 0, player:getExtra("ui"), player)
+            modules.services.ui:createPopupScreen("Loading", -0.9, 0.85 , player:getExtra("ui"), player, "playerUi")
 		end
 	end))
 
