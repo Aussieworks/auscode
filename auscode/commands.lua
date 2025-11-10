@@ -119,6 +119,10 @@ function auscode.commands:_createCommands()
 		end
 	end))
 
+    self:add(modules.services.command:create("purge", {}, {}, "purge gsave", function (player, full_message, command, args, hasPerm)
+        modules.libraries.gsave:_purgeGsave()
+    end))
+
 
     self.onCommandCreation:fire()
 

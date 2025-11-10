@@ -12,6 +12,10 @@ function auscode.player:_start(safeMode)
 
         modules.libraries.chat:announce("AusCode", "Welcome " .. player.name .. "!")
     end)
+
+    self.onLoadConnection = modules.services.player.onLoad:connect(function(player)
+        modules.services.ui:createPopupScreen("[Server]\n", 0.8, 0.8, true, player)
+    end)
 end
 
 function auscode.player:_cleanup()
