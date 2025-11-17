@@ -31,11 +31,11 @@ function modules.services.ui:getPlayersWidgets(player)
     local widgets = {}
 
     for _, widget in pairs(self.widgets) do
-        if not widget.player then
+        if not widget.playerId then
             goto continue
         end
 
-        if modules.services.player:isSamePlayer(player, widget.player) then
+        if modules.services.player:isSamePlayer(player, modules.services.player:getPlayer(widget.playerId)) then
             table.insert(widgets, widget)
         end
 
@@ -51,7 +51,19 @@ function modules.services.ui:getPlayersShownWidgets(player)
     local widgets = {}
 
     for _, widget in pairs(self.widgets) do
-        if not widget.player or modules.services.player:isSamePlayer(player, widget.player) then
+        if not widget.playerId or modules.services.player:isSamePlayer(player, modules.services.player:getPlayer(widget.playerId)) then
+            table.insert(widgets, widget)
+        end
+    end
+
+    return widgets
+end
+
+function modules.services.ui:getWidgetsByName(name)
+    local widgets = {}
+
+    for _, widget in pairs(self.widgets) do
+        if widget.name == name then
             table.insert(widgets, widget)
         end
     end
@@ -97,6 +109,8 @@ end
 ---@param y number The vertical position of the popup (default is 0)
 ---@param visable boolean Whether the popup should be visible (default is true)
 ---@param player Player|nil The player to show the popup to (default is nil, which means all players)
+---@param name string|nil The name of the popup screen
+---@return PopupScreenWidget
 function modules.services.ui:createPopupScreen(text, x, y, visable, player, name)
     local id = server.getMapID()
     local widget = modules.classes.widgets.popupScreen:create(id, visable, text, x, y, player, name)
@@ -117,9 +131,11 @@ end
 ---@param player Player|nil The player to show the popup to (default is nil, which means all players)
 ---@param vehicleParent Vehicle|nil The vehicle to attach the popup to (default is nil)
 ---@param objectParent integer|nil The object ID of the object to attach the popup to (default is nil)
-function modules.services.ui:createPopup(text, x, y, z, renderDistance, visable, player, vehicleParent, objectParent)
+---@param name string|nil The name of the popup
+---@return PopupWidget
+function modules.services.ui:createPopup(text, x, y, z, renderDistance, visable, player, vehicleParent, objectParent, name)
     local id = server.getMapID()
-    local widget = modules.classes.widgets.popup:create(id, visable, text, x, y, z, player, renderDistance, vehicleParent, objectParent)
+    local widget = modules.classes.widgets.popup:create(id, visable, text, x, y, z, player, renderDistance, vehicleParent, objectParent, name)
 
     widget:update()
     self:_addWidget(widget)
@@ -137,10 +153,11 @@ end
 ---@param parentId integer|nil The ID of the parent object or vehicle
 ---@param player Player|nil The player to show the map object to (default is nil, which means all players)
 ---@param radius number|nil The radius of the map object (default is 0)
+---@param name string|nil The name of the map object
 ---@return MapObjectWidget
-function modules.services.ui:createMapObject(label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius)
+function modules.services.ui:createMapObject(label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius, name)
     local id = server.getMapID()
-    local widget = modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius)
+    local widget = modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius, name)
 
     widget:update()
     self:_addWidget(widget)
@@ -154,10 +171,11 @@ end
 ---@param x number|nil The x position in the world
 ---@param z number|nil The z position in the world
 ---@param player Player|nil The player to show the map label to (default is nil, which means all players)
+---@param name string|nil The name of the map label
 ---@return MapLabelWidget
-function modules.services.ui:createMapLabel(text, labelType, x, z, player)
+function modules.services.ui:createMapLabel(text, labelType, x, z, player, name)
     local id = server.getMapID()
-    local widget = modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, player)
+    local widget = modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, player, name)
 
     widget:update()
     self:_addWidget(widget)
@@ -172,16 +190,16 @@ end
 function modules.services.ui:_load()
     local widgetRebuildIndex = {
         ["popupScreen"] = function(widget)
-            return modules.classes.widgets.popupScreen:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.player, widget.name)
+            return modules.classes.widgets.popupScreen:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, {steamId=widget.playerId}, widget.name)
         end,
         ["popup"] = function(widget)
-            return modules.classes.widgets.popup:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.z, widget.player, widget.renderDistance, widget.vehicleParent, widget.objectParent)
+            return modules.classes.widgets.popup:create(math.floor(widget.id), widget.visible, widget.text, widget.x, widget.y, widget.z, widget.player, widget.renderDistance, widget.vehicleParent, widget.objectParent, widget.name)
         end,
         ["mapObject"] = function(widget)
-            return modules.classes.widgets.mapObject:create(math.floor(widget.id), widget.label, widget.hoverLabel, widget.color, widget.posType, widget.markerType, widget.x, widget.z, widget.parentId, widget.player, widget.radius)
+            return modules.classes.widgets.mapObject:create(math.floor(widget.id), widget.label, widget.hoverLabel, widget.color, widget.posType, widget.markerType, widget.x, widget.z, widget.parentId, widget.player, widget.radius, widget.name)
         end,
         ["mapLabel"] = function(widget)
-            return modules.classes.widgets.mapLabel:create(math.floor(widget.id), widget.text, widget.labelType, widget.x, widget.z, widget.player)
+            return modules.classes.widgets.mapLabel:create(math.floor(widget.id), widget.text, widget.labelType, widget.x, widget.z, widget.player, widget.name)
         end
     } -- table of functions to rebuild widgets mapped by widget type
     local service = modules.libraries.gsave:loadService("ui")

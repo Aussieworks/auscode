@@ -31,10 +31,30 @@ function auscode:_start()
     modules.services.task:create(10, function(task)
         local players = modules.services.player:getOnlinePlayers()
         for _, player in pairs(players) do
-            local widgets = modules.services.ui:getPlayersShownWidgets(player)
+            local widgets = modules.services.ui:getPlayersWidgets(player)
             for _, widget in pairs(widgets) do
                 if widget.type == "popupScreen" and widget.name == "playerUi" then
                     widget.text = string.format("[Server]\n[TPS]: %.0f\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    widget:update()
+                end
+            end
+        end
+    end, true)
+
+    modules.services.task:create(2, function(task)
+        for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+            for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
+                local firstVehicle = {}
+                for _, vehicle in pairs(group.vehicles) do
+                    firstVehicle = vehicle
+                    break
+                end
+
+                local pos = firstVehicle:getPos()
+                local x,y,z = matrix.position(pos)
+                for _, widget in pairs(modules.services.ui:getWidgetsByName("vehicleGroup"..group.groupId)) do
+                    widget.x = x
+                    widget.z = z
                     widget:update()
                 end
             end

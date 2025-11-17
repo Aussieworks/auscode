@@ -108,7 +108,7 @@ function auscode.commands:_createCommands()
 			local widgets = modules.services.ui:getPlayersShownWidgets(player)
 			local str = "Widgets:\n"
 			for _, widget in pairs(widgets) do
-				str = str .. "ID: " .. widget.id .. ", Type: " .. widget.type .. ", Player: " .. (widget.player and widget.player.name or "Nil") .. "\n"
+				str = str .. "ID: " .. widget.id .. ", Type: " .. widget.type .. ", Player: " .. (widget.playerId or "Nil") .. "\n"
 			end
 			modules.libraries.logging:info("ui", str)
 			return

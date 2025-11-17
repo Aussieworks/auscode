@@ -121,7 +121,7 @@ end
 -- get all vehicle groups owned by a player
 ---@param player Player
 ---@return table<number, VehicleGroup>
-function modules.services.vehicle:getPlayersVehicleGroups(player)
+function modules.services.vehicle:getPlayersVehicleGroups(player, mustBeLoaded)
     local groups = {}
     for _, vGroup in pairs(self.loadedVehicles) do
         local owner = vGroup:getOwner()
@@ -131,11 +131,13 @@ function modules.services.vehicle:getPlayersVehicleGroups(player)
             end
         end
     end
-    for _, vGroup in pairs(self.loadingVehicles) do
-        local owner = vGroup:getOwner()
-        if owner then
-            if modules.services.player:isSamePlayer(owner,player) then
-                table.insert(groups, vGroup)
+    if not mustBeLoaded then
+        for _, vGroup in pairs(self.loadingVehicles) do
+            local owner = vGroup:getOwner()
+            if owner then
+                if modules.services.player:isSamePlayer(owner,player) then
+                    table.insert(groups, vGroup)
+                end
             end
         end
     end

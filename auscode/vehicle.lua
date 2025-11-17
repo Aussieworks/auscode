@@ -16,9 +16,17 @@ function auscode.vehicle:_start(safeMode)
             break
         end
 
-        group:setTooltip("Owner: "..group:getOwner().name.."\nGroup ID: "..group.groupId)
-        modules.services.ui:createMapLabel("Owner: "..group:getOwner().name.."\nGroup ID: "..group.groupId, 0)
-        modules.services.ui:createMapObject("Vehicle", "Owner: "..group:getOwner().name.."\nGroup ID: "..group.groupId, modules.classes.widgets.color:create(0,255,0), 1, 1, 0, 0, firstVehicle.id)
+        group:setTooltip(string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId))
+        modules.services.ui:createMapLabel(string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId), 0, nil, nil, nil, "vehicleGroup"..group.groupId)
+        modules.services.ui:createMapObject("Vehicle", string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId), modules.classes.widgets.color:create(0,255,0), 1, 12, 0, 0, firstVehicle.id, nil, nil, "vehicleGroup"..group.groupId)
+    end)
+
+    self.onGroupDespawnConnection = modules.services.vehicle.onGroupDespawn:connect(function(group)
+        local widgets = modules.services.ui:getWidgetsByName("vehicleGroup"..group.groupId)
+
+        for _, widget in pairs(widgets) do
+            modules.services.ui:removeWidget(widget.id)
+        end
     end)
     return true
 end

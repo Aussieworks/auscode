@@ -1,6 +1,6 @@
 modules.classes.widgets.mapLabel = {}
 
-function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, player)
+function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, player, name)
     ---@class MapLabelWidget
     ---@field type string
     ---@field player Player|nil
@@ -18,6 +18,7 @@ function modules.classes.widgets.mapLabel:create(id, text, labelType, x, z, play
         labelType = labelType or 0,
         x = x or 0, -- Default position
         z = z or 0, -- Default position
+        name = name or ""
     }
 
     -- update the label for the player

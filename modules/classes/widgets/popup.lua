@@ -1,7 +1,7 @@
 modules.classes.widgets.popup = {}
 
 ---@return PopupWidget
-function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player, renderDistance, vehicleParent, objectParent)
+function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player, renderDistance, vehicleParent, objectParent, name)
     ---@class PopupWidget
     ---@field type string
     ---@field player Player|nil
@@ -26,7 +26,8 @@ function modules.classes.widgets.popup:create(id, visible, text, x, y, z, player
         z = z or 0, -- Default vertical position
         renderDistance = renderDistance or 100, -- Default render distance
         vehicleParent = vehicleParent,
-        objectParent = objectParent
+        objectParent = objectParent,
+        name = name or ""
     }
 
     -- update the ui object for the player

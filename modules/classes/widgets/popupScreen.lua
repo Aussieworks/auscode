@@ -34,6 +34,12 @@ function modules.classes.widgets.popupScreen:create(id, visible, text, x, y, pla
         server.setPopupScreen(player and player.peerId or -1, self.id, "", false, "", 0, 0)
     end
 
+    -- remove the ui object from the player
+    ---@param player Player|nil
+    function screen:_remove(player)
+        server.removePopup(player and player.peerId or -1, self.id)
+    end
+
     -- update the ui object
     function screen:update()
         if self.playerId then

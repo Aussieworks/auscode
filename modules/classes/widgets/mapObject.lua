@@ -1,7 +1,7 @@
 modules.classes.widgets.mapObject = {}
 
 ---@return MapObjectWidget
-function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius)
+function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, posType, markerType, x, z, parentId, player, radius, name)
     ---@class MapObjectWidget
     ---@field type string
     ---@field player Player|nil
@@ -29,6 +29,7 @@ function modules.classes.widgets.mapObject:create(id, label, hoverLabel, color, 
         z = z or 0, -- Default position
         radius = radius or 0,
         parentId = parentId or 0,
+        name = name or ""
     }
 
     -- update the ui object for the player
