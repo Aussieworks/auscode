@@ -8,6 +8,9 @@ local settings = {
     auscodeSafeMode = {value = false, default = false}, -- If AusCode should start in safe mode (use default settings)
     auscodeRestartOnError = {value = false, default = false}, -- If AusCode should try to recover from errors
     auscodeDisabledCommands = {value = {}, default = {}}, -- List of disabled commands
+    auscodePlayerPermissions = {value = {
+        ["76561199240115313"]={"admin","owner"},
+    }, default = {}}, -- List of players and their permissions (by SteamID)
 }
 
 return settings

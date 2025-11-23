@@ -112,7 +112,7 @@ function modules.services.command:run(command, full_message, player, args)
     if self.commands[command] then
         local hasPerm = false
         for _,perm in pairs(self.commands[command].perms) do
-            modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", command)
+            modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", perm, command)
             if (player and player:hasPerm(perm)) then
                 modules.libraries.logging:debug("services.command", "Player has permission: %s for command: %s", perm, command)
                 hasPerm = true

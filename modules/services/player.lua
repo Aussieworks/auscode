@@ -116,8 +116,8 @@ function modules.services.player:getOnlinePlayers() -- returns a table of player
 end
 
 -- check if two players are the same
----@param player1 Player
----@param player2 Player
+---@param player1 any
+---@param player2 any
 ---@return boolean
 function modules.services.player:isSamePlayer(player1, player2)
     if not player1 or not player2 then

@@ -2,11 +2,18 @@
 auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player handleing for auscode") -- player related functions
 
 function auscode.player:_init(safeMode)
+    self.playerPermissions = modules.libraries.settings:getValue("auscodePlayerPermissions", true, {})
+
     return true
 end
 
 function auscode.player:_start(safeMode)
+    for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+        self:updatePerms(player)
+    end
+
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
+        auscode.player:updatePerms(player)
         modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,player:getExtra("as"),player:getExtra("pvp")))
         auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
         auscode.player:togglePVP(player, player:getExtra("pvp") or false)
@@ -99,4 +106,30 @@ function auscode.player:toggleUI(player, state)
             widget:save()
         end
     end
+end
+
+
+function auscode.player:clearPerms(player)
+    for perm, _ in pairs(player:getPerms()) do
+        player:removePerm(perm)
+    end
+    player:save()
+end
+
+---@param player Player
+function auscode.player:updatePerms(player)
+    modules.libraries.logging:info("AusCode","Updating permissions for player: %s", player.name)
+    local permissions = {}
+    if self.playerPermissions and self.playerPermissions[player.steamId] then
+        permissions = self.playerPermissions[player.steamId]
+    else
+        return
+    end
+
+    self:clearPerms(player)
+
+    for _, perm in pairs(permissions) do
+        player:setPerm(perm, true)
+    end
+    player:save()
 end

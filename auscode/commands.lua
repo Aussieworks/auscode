@@ -36,11 +36,11 @@ function auscode.commands:add(command)
 end
 
 function auscode.commands:_createCommands()
-    self:add(modules.services.command:create("simjoin", {"sj"}, {}, "simulate a player join", function(player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("simjoin", {"sj"}, {"owner"}, "simulate a player join", function(player, full_message, command, args, hasPerm)
         onPlayerJoin(981627940718983, "SimulatedPlayer", 100, false, false)
     end))
 
-    self:add(modules.services.command:create("loglevel", {"ll"}, {}, "set log level", function(player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("loglevel", {"ll"}, {"owner"}, "set log level", function(player, full_message, command, args, hasPerm)
         modules.libraries.logging:setLogLevel(args[1] or "DEBUG")
     end))
 
@@ -78,7 +78,7 @@ function auscode.commands:_createCommands()
         end
     end))
 
-    self:add(modules.services.command:create("runas", {"ra"}, {}, "run command as another player", function(player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("runas", {"ra"}, {"owner"}, "run command as another player", function(player, full_message, command, args, hasPerm)
         local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
 
         if targetPlayer then
@@ -93,7 +93,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "test command", function(player, full_message, command, args, hasPerm)
-        modules.services:getService("ui")
+        modules.libraries.logging:info("AusCode", "Player: %s's perms: %s", player.name, modules.libraries.table:tostring(player:getPerms()))
     end))
 
     self:add(modules.services.command:create("ui", {}, {}, "test command", function (player, full_message, command, args, hasPerm)
@@ -119,7 +119,7 @@ function auscode.commands:_createCommands()
 		end
 	end))
 
-    self:add(modules.services.command:create("purge", {}, {}, "purge gsave", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("purge", {}, {"owner"}, "purge gsave", function (player, full_message, command, args, hasPerm)
         modules.libraries.gsave:_purgeGsave()
     end))
 
