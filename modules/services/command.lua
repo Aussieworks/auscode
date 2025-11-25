@@ -109,29 +109,65 @@ function modules.services.command:remove(commandstr)
 end
 
 function modules.services.command:run(command, full_message, player, args)
-    if self.commands[command] then
-        local hasPerm = false
-        for _,perm in pairs(self.commands[command].perms) do
-            modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", perm, command)
-            if (player and player:hasPerm(perm)) then
-                modules.libraries.logging:debug("services.command", "Player has permission: %s for command: %s", perm, command)
-                hasPerm = true
-                break
-            end
+    local cmd = self:getCommand(command)
+    if cmd == nil then
+        modules.libraries.logging:info("services.command", "Command not found: %s", command)
+        self.onInvalidCommand:fire(command, full_message, player, args)
+        return
+    end
+
+    local hasPerm = false
+    for _,perm in pairs(cmd.perms) do
+        modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", perm, command)
+        if (player and player:hasPerm(perm)) then
+            modules.libraries.logging:debug("services.command", "Player has permission: %s for command: %s", perm, command)
+            hasPerm = true
+            break
         end
-        self.commands[command]:run(player, full_message, command, args, hasPerm)
+    end
+
+    cmd:run(player, full_message, command, args, hasPerm)
+end
+
+function modules.services.command:getCommand(command)
+    if self.commands[command] then
+        return self.commands[command]
     elseif not self.commands[command] then
         for _, cmd in pairs(self.commands) do
             for _, alias in pairs(cmd.alias) do
                 if alias == command then
-                    cmd:run(player, full_message, command, args)
-                    return
+                    return cmd
                 end
             end
         end
-        modules.libraries.logging:info("services.command", "Command not found: %s", command)
-        self.onInvalidCommand:fire(command, full_message, player, args)
+        modules.libraries.logging:info("services.command:getCommand()", "Command not found: %s", command)
     end
+end
+
+function modules.services.command:getComamnds()
+    return self.commands
+end
+
+---@param player Player
+---@param command Command
+---@return boolean
+function modules.services.command:hasPerm(player, command)
+    local hasPerm = false
+
+    if #command.perms == 0 then
+        return true
+    end
+
+    for _,perm in pairs(command.perms) do
+        modules.libraries.logging:debug("services.command", "Checking permission: %s for command: %s", perm, command.commandstr)
+        if (player and player:hasPerm(perm)) then
+            modules.libraries.logging:debug("services.command", "Player has permission: %s for command: %s", perm, command.commandstr)
+            hasPerm = true
+            break
+        end
+    end
+
+    return hasPerm
 end
 
 -- removes ? from command

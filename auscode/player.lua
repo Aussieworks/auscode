@@ -14,9 +14,9 @@ function auscode.player:_start(safeMode)
 
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
         auscode.player:updatePerms(player)
-        modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,player:getExtra("as"),player:getExtra("pvp")))
         auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
         auscode.player:togglePVP(player, player:getExtra("pvp") or false)
+        modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player and player:getExtra("as") or "nil"),(player and player:getExtra("pvp") or "nil")))
     end)
 
     self.onLoadConnection = modules.services.player.onLoad:connect(function(player)
@@ -38,6 +38,13 @@ function auscode.player:_start(safeMode)
         for _, widget in pairs(widgets) do
             if widget.type == "popupScreen" and widget.name == "playerUi" then
                 modules.services.ui:removeWidget(widget.id)
+            end
+        end
+
+        local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
+        for _, group in pairs(vehicles) do
+            if not group.isDespawned then
+                group:despawn(true)
             end
         end
     end)
