@@ -175,7 +175,8 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test command", function(player, full_message, command, args, hasPerm)
-        modules.libraries.logging:info("AusCode", "Player: %s's perms: %s", player.name, modules.libraries.table:tostring(player:getPerms()))
+        local players = modules.services.player:getPlayers()
+        modules.libraries.logging:info("AusCode", "Players: %s", #players)
     end))
 
     self:add(modules.services.command:create("ui", {}, {}, "{'list'|'toggle'|'create'} \n \\ Temporary ui command", function (player, full_message, command, args, hasPerm)
@@ -208,6 +209,23 @@ function auscode.commands:_createCommands()
     self:add(modules.services.command:create("auth", {"a"}, {}, "\n \\ Auth", function (player, full_message, command, args, hasPerm)
         player:setAuth(true)
         player:notify("Auth", "You are now authenticated.", 5)
+    end))
+
+    self:add(modules.services.command:create("tpp", {}, {"admin", "owner"}, "\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
+        if not args[1] or type(tonumber(args[1])) ~= "number" then
+            player:notify("[Comamnd] Invalid usage", "Usage: ?tpp {peerId} [peerId]", 6)
+            return
+        end
+
+        local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
+
+        if not targetPlayer then
+            player:notify("TPP", "Player not found.", 1)
+            return
+        end
+
+        player:setPos(targetPlayer:getPos())
+        player:notify("TPP", "Teleported to "..targetPlayer.name, 5)
     end))
 
 

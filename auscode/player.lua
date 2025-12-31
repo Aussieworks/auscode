@@ -16,7 +16,7 @@ function auscode.player:_start(safeMode)
         auscode.player:updatePerms(player)
         auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
         auscode.player:togglePVP(player, player:getExtra("pvp") or false)
-        modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player and player:getExtra("as") or "nil"),(player and player:getExtra("pvp") or "nil")))
+        modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player:getExtra("as")~=nil and player:getExtra("as") or player:getExtra("as")==nil and "nil"),(player:getExtra("pvp")~=nil and player:getExtra("pvp") or player:getExtra("pvp")==nil and "nil")))
     end)
 
     self.onLoadConnection = modules.services.player.onLoad:connect(function(player)
