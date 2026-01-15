@@ -28,7 +28,7 @@ function auscode.player:_start(safeMode)
             end
         end
 
-        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.85 , true, player, "playerUi")
+        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.85, true, player, "playerUi")
         widget:_remove(player)
         widget:update()
     end)
@@ -63,7 +63,7 @@ function auscode.player:toggleAntisteal(player, state)
     player:save()
 
     local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
-    if #vehicles > 0 then
+    if count(vehicles) > 0 then
         for _, group in pairs(vehicles) do
             if not group.isDespawned then
                 group:setEditable(not player:getExtra("as"))
@@ -84,7 +84,7 @@ function auscode.player:togglePVP(player, state)
     player:save()
 
     local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
-    if #vehicles > 0 then
+    if count(vehicles) > 0 then
         for _, group in pairs(vehicles) do
             if not group.isDespawned then
                 group:setInvulnerable(not player:getExtra("pvp"))

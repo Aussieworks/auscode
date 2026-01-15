@@ -118,16 +118,33 @@ function modules.services.vehicle:getVehicleGroup(vehicle_id, mustBeLoaded)
     return g
 end
 
+--- get a vehicle group by its group id
+--- @param groupId number
+--- @param mustBeLoaded boolean|nil
+--- @return VehicleGroup|nil
+function modules.services.vehicle:getGroup(groupId, mustBeLoaded)
+    local g
+    if self.loadedVehicles[tostring(groupId)] then
+        g = self.loadedVehicles[tostring(groupId)]
+    end
+    if not g and not mustBeLoaded then
+        if self.loadingVehicles[tostring(groupId)] then
+            g = self.loadingVehicles[tostring(groupId)]
+        end
+    end
+    return g
+end
+
 -- get all vehicle groups owned by a player
 ---@param player Player
----@return table<number, VehicleGroup>
+---@return table<string, VehicleGroup>
 function modules.services.vehicle:getPlayersVehicleGroups(player, mustBeLoaded)
     local groups = {}
     for _, vGroup in pairs(self.loadedVehicles) do
         local owner = vGroup:getOwner()
         if owner then
             if modules.services.player:isSamePlayer(owner,player) then
-                table.insert(groups, vGroup)
+                groups[vGroup.groupId] = vGroup
             end
         end
     end
@@ -136,7 +153,7 @@ function modules.services.vehicle:getPlayersVehicleGroups(player, mustBeLoaded)
             local owner = vGroup:getOwner()
             if owner then
                 if modules.services.player:isSamePlayer(owner,player) then
-                    table.insert(groups, vGroup)
+                    groups[vGroup.groupId] = vGroup
                 end
             end
         end

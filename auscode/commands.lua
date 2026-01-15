@@ -138,7 +138,7 @@ function auscode.commands:_createCommands()
 
     self:add(modules.services.command:create("clear", {"clean","c","despawn","remove"}, {}, "[groupId] \n \\ Despawn your vehicle/s", function(player, full_message, command, args, hasPerm)
         local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
-        if #vehicles > 0 then
+        if count(vehicles) > 0 then
             local worked = false
             for _, group in pairs(vehicles) do
                 if #args > 0 and group.groupId == args[1] then
@@ -175,8 +175,8 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test command", function(player, full_message, command, args, hasPerm)
-        local players = modules.services.player:getPlayers()
-        modules.libraries.logging:info("AusCode", "Players: %s", #players)
+        local g = modules.services.vehicle:getGroup(args[1], true)
+        modules.libraries.logging:info("Test", "Group: %s", modules.libraries.table:tostring(g))
     end))
 
     self:add(modules.services.command:create("ui", {}, {}, "{'list'|'toggle'|'create'} \n \\ Temporary ui command", function (player, full_message, command, args, hasPerm)
@@ -198,7 +198,7 @@ function auscode.commands:_createCommands()
 		elseif args[1] == "toggle" then
 			auscode.player:toggleUI(player)
         elseif args[1] == "create" then
-            modules.services.ui:createPopupScreen("Loading", -0.9, 0.85 , player:getExtra("ui"), player, "playerUi")
+            modules.services.ui:createPopupScreen("Loading", -0.9, 0.85, player:getExtra("ui"), player, "playerUi")
 		end
 	end))
 
@@ -211,9 +211,9 @@ function auscode.commands:_createCommands()
         player:notify("Auth", "You are now authenticated.", 5)
     end))
 
-    self:add(modules.services.command:create("tpp", {}, {"admin", "owner"}, "\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("tpp", {}, {"admin", "owner"}, "{peerId} [peerId]\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
         if not args[1] or type(tonumber(args[1])) ~= "number" then
-            player:notify("[Comamnd] Invalid usage", "Usage: ?tpp {peerId} [peerId]", 6)
+            player:notify("[Command] Invalid usage", "Usage: ?tpp {peerId} [peerId]", 6)
             return
         end
 
@@ -228,6 +228,54 @@ function auscode.commands:_createCommands()
         player:notify("TPP", "Teleported to "..targetPlayer.name, 5)
     end))
 
+    self:add(modules.services.command:create("tpv", {}, {}, "{groupId}\n \\ Teleport to vehicle group", function (player, full_message, command, args, hasPerm)
+        if not args[1] or type(tonumber(args[1])) ~= "number" then
+            player:notify("[Command] Invalid usage", "Usage: ?tpv {groupId}", 6)
+            return
+        end
+
+        local group = modules.services.vehicle:getGroup(args[1], true)
+
+        if not group then
+            player:notify("TPV", "Vehicle group not found.", 1)
+            return
+        end
+
+        local firstVehicle
+
+        for _, vehicle in pairs(group.vehicles) do
+            firstVehicle = vehicle
+            break
+        end
+
+        local pos = firstVehicle:getPos()
+        local x,y,z = matrix.position(pos)
+        pos = matrix.translation(x, y + 5, z)
+
+        player:setPos(pos)
+        player:notify("TPV", "Teleported to vehicle group "..group.groupId, 5)
+    end))
+
+    self:add(modules.services.command:create("tvp", {}, {"mod", "admin", "owner"}, "{groupId}\n \\ Teleport vehicle group to you", function (player, full_message, command, args, hasPerm)
+        if not args[1] or type(tonumber(args[1])) ~= "number" then
+            player:notify("[Command] Invalid usage", "Usage: ?tvp {groupId}", 6)
+            return
+        end
+
+        local group = (hasPerm==true and modules.services.vehicle:getGroup(args[1], true) or (hasPerm==false and modules.services.vehicle:getPlayersVehicleGroups(player, true)[tostring(args[1])]))
+
+        if not group then
+            player:notify("TVP", "Vehicle group not found.", 1)
+            return
+        end
+
+        local pos = player:getPos()
+        local x,y,z = matrix.position(pos)
+        pos = matrix.translation(x, y + 5, z)
+
+        group:setPos(pos)
+        player:notify("TVP", "Teleported vehicle group "..group.groupId.." to you.", 5)
+    end))
 
     self.onCommandCreation:fire()
 

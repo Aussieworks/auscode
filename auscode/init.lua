@@ -91,3 +91,12 @@ function auscode:restart(safeMode)
         end
     end
 end
+
+-- helper function to count items in a table
+function count(tbl)
+    local count = 0
+    for _ in pairs(tbl) do
+        count = count + 1
+    end
+    return count
+end

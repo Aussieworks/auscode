@@ -101,6 +101,14 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded,
         end
     end
 
+    function vehicleGroup:setPos(pos)
+        server.setGroupPos(self.groupId, pos)
+    end
+
+    function vehicleGroup:setPosSafe(pos)
+        server.setGroupPosSafe(self.groupId, pos)
+    end
+
     function vehicleGroup:save()
         modules.services.vehicle:_updateVehicle(self)
     end
