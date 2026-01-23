@@ -41,7 +41,7 @@ function auscode:_start()
         end
     end, true)
 
-    modules.services.task:create(2, function(task)
+    modules.services.task:create(1, function(task)
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
                 local firstVehicle = {}

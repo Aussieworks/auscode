@@ -161,6 +161,21 @@ function modules.services.vehicle:getPlayersVehicleGroups(player, mustBeLoaded)
     return groups
 end
 
+-- get all vehicle groups
+---@return table<string, VehicleGroup>
+function modules.services.vehicle:getAllGroups(mustBeLoaded)
+    local groups = {}
+    if not mustBeLoaded then
+        for _, vGroup in pairs(self.loadingVehicles) do
+            groups[vGroup.groupId] = vGroup
+        end
+    end
+    for _, vGroup in pairs(self.loadedVehicles) do
+        groups[vGroup.groupId] = vGroup
+    end
+    return groups
+end
+
 -- internal function to save the vehicles service
 function modules.services.vehicle:_save()
     modules.libraries.gsave:saveService("vehicle", self)

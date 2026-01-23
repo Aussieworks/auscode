@@ -10,6 +10,8 @@ end
 function auscode.player:_start(safeMode)
     for _, player in pairs(modules.services.player:getOnlinePlayers()) do
         self:updatePerms(player)
+        auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
+        auscode.player:togglePVP(player, player:getExtra("pvp") or false)
     end
 
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)

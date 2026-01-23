@@ -65,6 +65,10 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("playerinfo", {"pi", "pinfo"}, {"owner", "admin", "mod"}, "{peerId|'all'} \n \\ Get players info", function(player, full_message, command, args, hasPerm)
+        if not hasPerm then
+            return
+        end
+
         if not args[1] or args[1] ~= "all" and type(tonumber(args[1])) ~= "number" then
             player:notify("[Comamnd] Invalid usage", "Usage: ?playerinfo {peerId|'all'}", 1)
             return
@@ -87,14 +91,17 @@ function auscode.commands:_createCommands()
                 end
             end
 
-            local info = string.format("Name: %s\nPeer ID: %s\nSteam ID: %s\nOnline: %s\nAnti-Steal: %s\nPVP: %s\nPermissions: %s",
+            local warns = targetPlayer:getExtra("warnings") or {}
+
+            local info = string.format("Name: %s\nPeer ID: %s\nSteam ID: %s\nOnline: %s\nAnti-Steal: %s\nPVP: %s\nPermissions: %s\nWarns:%s",
                 targetPlayer.name,
                 targetPlayer.peerId,
                 targetPlayer.steamId,
                 tostring(targetPlayer.inGame),
                 tostring(targetPlayer:getExtra("as")),
                 tostring(targetPlayer:getExtra("pvp")),
-                table.concat(textPerms, ", ")
+                table.concat(textPerms, ", "),
+                table.concat(warns, ", ")
             )
 
             modules.libraries.chat:announce("[Command] PlayerInfo:", info, player.peerId)
@@ -123,6 +130,10 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("loglevel", {"ll"}, {"owner"}, "{'debug'|'info'|'warning'|'error'} \n \\ Set log level", function(player, full_message, command, args, hasPerm)
+        if not hasPerm then
+            return
+        end
+
         modules.libraries.logging:setLogLevel(args[1] or "DEBUG")
     end))
 
@@ -160,7 +171,25 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("clearall", {"cleanall","ca","despawnall","removeall"}, {"owner","admin"}, "\n \\ Despawn all vehicles", function(player, full_message, command, args, hasPerm)
+        if not hasPerm then
+            return
+        end
+
+        local groups = modules.services.vehicle:getAllGroups()
+
+        for _, group in pairs(groups) do
+            group:despawn(true)
+        end
+
+        player:notify("Vehicle", "All vehicles have been despawned.", 5)
+    end))
+
     self:add(modules.services.command:create("runas", {"ra"}, {"owner"}, "{peerId} {command} [args] \n \\ Run a command as another player", function(player, full_message, command, args, hasPerm)
+        if not hasPerm then
+            return
+        end
+
         local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
 
         if targetPlayer then
@@ -175,8 +204,6 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test command", function(player, full_message, command, args, hasPerm)
-        local g = modules.services.vehicle:getGroup(args[1], true)
-        modules.libraries.logging:info("Test", "Group: %s", modules.libraries.table:tostring(g))
     end))
 
     self:add(modules.services.command:create("ui", {}, {}, "{'list'|'toggle'|'create'} \n \\ Temporary ui command", function (player, full_message, command, args, hasPerm)
@@ -211,7 +238,7 @@ function auscode.commands:_createCommands()
         player:notify("Auth", "You are now authenticated.", 5)
     end))
 
-    self:add(modules.services.command:create("tpp", {}, {"admin", "owner"}, "{peerId} [peerId]\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("tpp", {}, {}, "{peerId} [peerId]\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
         if not args[1] or type(tonumber(args[1])) ~= "number" then
             player:notify("[Command] Invalid usage", "Usage: ?tpp {peerId} [peerId]", 6)
             return
@@ -256,7 +283,7 @@ function auscode.commands:_createCommands()
         player:notify("TPV", "Teleported to vehicle group "..group.groupId, 5)
     end))
 
-    self:add(modules.services.command:create("tvp", {}, {"mod", "admin", "owner"}, "{groupId}\n \\ Teleport vehicle group to you", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("tvp", {}, {}, "{groupId}\n \\ Teleport vehicle group to you", function (player, full_message, command, args, hasPerm)
         if not args[1] or type(tonumber(args[1])) ~= "number" then
             player:notify("[Command] Invalid usage", "Usage: ?tvp {groupId}", 6)
             return
@@ -275,6 +302,68 @@ function auscode.commands:_createCommands()
 
         group:setPos(pos)
         player:notify("TVP", "Teleported vehicle group "..group.groupId.." to you.", 5)
+    end))
+
+    self:add(modules.services.command:create("flip", {"f"}, {}, "[groupId]\n \\ Flip vehicle/s upright", function (player, full_message, command, args, hasPerm)
+        local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
+        if count(vehicles) > 0 then
+            local worked = false
+            for _, group in pairs(vehicles) do
+                if #args > 0 and group.groupId == args[1] then
+                    for _, vehicle in pairs(group.vehicles) do
+                        local pos = vehicle:getPos()
+                        local x,y,z = matrix.position(pos)
+                        pos = matrix.translation(x, y, z)
+                        vehicle:setPos(pos)
+                    end
+                    worked = true
+                    break
+                elseif #args == 0 then
+                    for _, vehicle in pairs(group.vehicles) do
+                        local pos = vehicle:getPos()
+                        local x,y,z = matrix.position(pos)
+                        pos = matrix.translation(x, y, z)
+                        vehicle:setPos(pos)
+                    end
+                    worked = true
+                end
+            end
+            if worked then
+                player:notify("Vehicle", "Your vehicle/s have been flipped.", 5)
+            else
+                player:notify("Vehicle", "No vehicle found with that group ID.", 6)
+            end
+        else
+            player:notify("Vehicle", "You have no vehicle/s to flip.", 6)
+        end
+    end))
+
+    self:add(modules.services.command:create("warn", {"w"}, {"owner", "admin", "mod"}, "{peerId} {reason} \n \\ Warn a player", function (player, full_message, command, args, hasPerm)
+        if not hasPerm then
+            return
+        end
+
+        if not args[1] or type(tonumber(args[1])) ~= "number" or not args[2] then
+            player:notify("[Command] Invalid usage", "Usage: ?warn {peerId} {reason}", 6)
+            return
+        end
+
+        local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
+
+        if not targetPlayer then
+            player:notify("Warn", "Player not found.", 1)
+            return
+        end
+
+        local reason = table.concat(args, " ", 2)
+
+        targetPlayer:notify("Warning", string.format("You have been warned by %s for: %s", player.name, reason), 10)
+        player:notify("Warn", string.format("You have warned %s for: %s", targetPlayer.name, reason), 5)
+
+        local warnings = targetPlayer:getExtra("warnings") or {}
+        table.insert(warnings, reason)
+        targetPlayer:setExtra("warnings", warnings)
+        targetPlayer:save()
     end))
 
     self.onCommandCreation:fire()
