@@ -109,6 +109,14 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded,
         server.setGroupPosSafe(self.groupId, pos)
     end
 
+    function vehicleGroup:resetState()
+        for _, vehicle in pairs(self.vehicles) do
+            if not vehicle.isDespawned then
+                vehicle:resetState()
+            end
+        end
+    end
+
     function vehicleGroup:save()
         modules.services.vehicle:_updateVehicle(self)
     end

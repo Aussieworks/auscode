@@ -11,6 +11,8 @@ local settings = {
     auscodePlayerPermissions = {value = {
         ["76561199240115313"]={"admin","owner"},
     }, default = {}}, -- List of players and their permissions (by SteamID)
+    auscodePlayerDefaultStates = {value = {as=true,pvp=false,ui=true}, default = {as=true,pvp=false,ui=true}}, -- Default player states
+    auscodeRules = {value = "Not Set", default = "Not Set"}
 }
 
 return settings

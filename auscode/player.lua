@@ -4,20 +4,22 @@ auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player
 function auscode.player:_init(safeMode)
     self.playerPermissions = modules.libraries.settings:getValue("auscodePlayerPermissions", true, {})
 
+    self.playerDefaultStates = modules.libraries.settings:getValue("auscodePlayerDefaultStates", true, {as=true,pvp=false,ui=true})
+
     return true
 end
 
 function auscode.player:_start(safeMode)
     for _, player in pairs(modules.services.player:getOnlinePlayers()) do
         self:updatePerms(player)
-        auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
-        auscode.player:togglePVP(player, player:getExtra("pvp") or false)
+        self:toggleAntisteal(player, player:getExtra("as") or false)
+        self:togglePVP(player, player:getExtra("pvp") or false)
     end
 
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
-        auscode.player:updatePerms(player)
-        auscode.player:toggleAntisteal(player, player:getExtra("as") or false)
-        auscode.player:togglePVP(player, player:getExtra("pvp") or false)
+        self:updatePerms(player)
+        self:toggleAntisteal(player, self.playerDefaultStates.as)
+        self:togglePVP(player, self.playerDefaultStates.pvp)
         modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player:getExtra("as")~=nil and player:getExtra("as") or player:getExtra("as")==nil and "nil"),(player:getExtra("pvp")~=nil and player:getExtra("pvp") or player:getExtra("pvp")==nil and "nil")))
     end)
 
@@ -33,6 +35,8 @@ function auscode.player:_start(safeMode)
         local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.85, true, player, "playerUi")
         widget:_remove(player)
         widget:update()
+
+        self:toggleUI(player, self.playerDefaultStates.ui)
     end)
 
     self.onLeaveConnection = modules.services.player.onLeave:connect(function(player)
@@ -54,6 +58,8 @@ end
 
 function auscode.player:_cleanup()
     self.onJoinConnection:disconnect()
+    self.onLoadConnection:disconnect()
+    self.onLeaveConnection:disconnect()
 end
 
 function auscode.player:toggleAntisteal(player, state)

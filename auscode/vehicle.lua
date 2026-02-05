@@ -33,4 +33,5 @@ end
 
 function auscode.vehicle:_cleanup()
     self.onGroupLoadConnection:disconnect()
+    self.onGroupDespawnConnection:disconnect()
 end

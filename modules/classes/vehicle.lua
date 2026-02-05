@@ -72,6 +72,10 @@ function modules.classes.vehicle:create(vehicleId, groupId, loaded, data, info)
         return server.setVehiclePosSafe(self.id, pos)
     end
 
+    function vehicle:resetState()
+        server.resetVehicleState(self.id)
+    end
+
     function vehicle:save()
         local group = modules.services.vehicle:getVehicleGroup(self.id)
         group:addVehicle(self)

@@ -203,9 +203,6 @@ function auscode.commands:_createCommands()
         end
     end))
 
-    self:add(modules.services.command:create("test", {}, {}, "\n \\ Test command", function(player, full_message, command, args, hasPerm)
-    end))
-
     self:add(modules.services.command:create("ui", {}, {}, "{'list'|'toggle'|'create'} \n \\ Temporary ui command", function (player, full_message, command, args, hasPerm)
 		if args[1] == "clear" then
 			local widgets = modules.services.ui:getPlayersShownWidgets(player)
@@ -308,17 +305,16 @@ function auscode.commands:_createCommands()
         local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
         if count(vehicles) > 0 then
             local worked = false
-            for _, group in pairs(vehicles) do
-                if #args > 0 and group.groupId == args[1] then
-                    for _, vehicle in pairs(group.vehicles) do
-                        local pos = vehicle:getPos()
-                        local x,y,z = matrix.position(pos)
-                        pos = matrix.translation(x, y, z)
-                        vehicle:setPos(pos)
-                    end
-                    worked = true
-                    break
-                elseif #args == 0 then
+            if #args > 0 and vehicles[tostring(args[1])] then
+                for _, vehicle in pairs(vehicles[tostring(args[1])].vehicles) do
+                    local pos = vehicle:getPos()
+                    local x,y,z = matrix.position(pos)
+                    pos = matrix.translation(x, y, z)
+                    vehicle:setPos(pos)
+                end
+                worked = true
+            elseif #args == 0 then
+                for _, group in pairs(vehicles) do
                     for _, vehicle in pairs(group.vehicles) do
                         local pos = vehicle:getPos()
                         local x,y,z = matrix.position(pos)
@@ -335,6 +331,30 @@ function auscode.commands:_createCommands()
             end
         else
             player:notify("Vehicle", "You have no vehicle/s to flip.", 6)
+        end
+    end))
+
+    self:add(modules.services.command:create("repair", {"r"}, {}, "[groupId]\n \\ Repair vehicle/s", function (player, full_message, command, args, hasPerm)
+        local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
+        if count(vehicles) > 0 then
+            local worked = false
+            if #args > 0 and vehicles[tostring(args[1])] then
+                vehicles[tostring(args[1])]:resetState()
+                worked = true
+            elseif #args == 0 then
+                for _, group in pairs(vehicles) do
+                    group:resetState()
+                    worked = true
+                end
+            end
+
+            if worked then
+                player:notify("Vehicle", "Your vehicle/s have been repaired.", 5)
+            else
+                player:notify("Vehicle", "No vehicle found with that group ID.", 6)
+            end
+        else
+            player:notify("Vehicle", "You have no vehicle/s to repair.", 6)
         end
     end))
 
@@ -364,6 +384,15 @@ function auscode.commands:_createCommands()
         table.insert(warnings, reason)
         targetPlayer:setExtra("warnings", warnings)
         targetPlayer:save()
+    end))
+
+    self:add(modules.services.command:create("version", {"ver"}, {}, "\n \\ Show AusCode version", function (player, full_message, command, args, hasPerm)
+        modules.libraries.chat:announce("[Command] Version", "AusCode version: "..auscode.version)
+    end))
+
+    self:add(modules.services.command:create("rules", {}, {}, "\n \\ Show server rules", function (player, full_message, command, args, hasPerm)
+        local rules = modules.libraries.settings:getValue("auscodeRules", true, "Not Set")
+        modules.libraries.chat:announce("[Command] Rules", rules)
     end))
 
     self.onCommandCreation:fire()

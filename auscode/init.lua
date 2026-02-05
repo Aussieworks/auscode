@@ -3,6 +3,8 @@ auscode = {} -- main table for auscode
 
 require "modules" -- load modules
 
+auscode.version = "2.0.0"
+
 auscode.safeMode = modules.libraries.settings:getValue("auscodeSafeMode", false, false) -- if auscode should start in safe mode (use default settings)
 
 auscode.restartOnError = modules.libraries.settings:getValue("auscodeRestartOnError", false, false) -- if auscode should try to recover from errors
@@ -28,6 +30,7 @@ function auscode:_start()
         end
     end
 
+    -- player ui task
     modules.services.task:create(10, function(task)
         local players = modules.services.player:getOnlinePlayers()
         for _, player in pairs(players) do
@@ -41,6 +44,7 @@ function auscode:_start()
         end
     end, true)
 
+    -- vehicle map label task
     modules.services.task:create(1, function(task)
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
