@@ -222,7 +222,7 @@ function auscode.commands:_createCommands()
 		elseif args[1] == "toggle" then
 			auscode.player:toggleUI(player)
         elseif args[1] == "create" then
-            modules.services.ui:createPopupScreen("Loading", -0.9, 0.85, player:getExtra("ui"), player, "playerUi")
+            modules.services.ui:createPopupScreen("Loading", -0.9, 0.8, player:getExtra("ui"), player, "playerUi")
 		end
 	end))
 
@@ -387,12 +387,44 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("version", {"ver"}, {}, "\n \\ Show AusCode version", function (player, full_message, command, args, hasPerm)
-        modules.libraries.chat:announce("[Command] Version", "AusCode version: "..auscode.version)
+        modules.libraries.chat:announce("[Command] Version", string.format("AusCode: %s\nModules: %s", auscode.version, modules.version), player.peerId)
     end))
 
     self:add(modules.services.command:create("rules", {}, {}, "\n \\ Show server rules", function (player, full_message, command, args, hasPerm)
         local rules = modules.libraries.settings:getValue("auscodeRules", true, "Not Set")
-        modules.libraries.chat:announce("[Command] Rules", rules)
+        modules.libraries.chat:announce("[Command] Rules", rules, player.peerId)
+    end))
+
+    self:add(modules.services.command:create("discord", {"disc"}, {}, "\n \\ Show Discord link", function (player, full_message, command, args, hasPerm)
+        local discordLink = modules.libraries.settings:getValue("auscodeDiscordLink", true, "")
+        if discordLink ~= "" then
+            modules.libraries.chat:announce("[Command] Discord Link", discordLink, player.peerId)
+        else
+            player:notify("Discord", "No Discord link set.", 6)
+        end
+    end))
+
+    self:add(modules.services.command:create("message", {"msg","wisper","tell"}, {}, "{playerId} {message}\n \\ Send a private message to a player", function (player, full_message, command, args, hasPerm)
+        if not args[1] or not args[2] then
+            player:notify("[Command] Invalid usage", "Usage: ?message {playerId} {message}", 6)
+            return
+        end
+
+        local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
+
+        if not targetPlayer then
+            player:notify("Message", "Player not found.", 6)
+            return
+        end
+
+        local message = table.concat(args, " ", 2)
+
+        modules.libraries.chat:announce("[Message] From: "..player.name, message, targetPlayer.peerId)
+        modules.libraries.chat:announce("[Message] To: "..targetPlayer.name, message, player.peerId)
+    end))
+
+    self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
+        player:notify("Uptime", auscode.utility:formatTime(modules.services.tps._last), 5)
     end))
 
     self.onCommandCreation:fire()

@@ -13,7 +13,6 @@ function modules.classes.service:create(name, description, authors)
         name = name,
         description = description,
         authors = authors,
-
         hasInit = false,
         hasStarted = false
     }

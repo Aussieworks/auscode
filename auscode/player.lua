@@ -20,6 +20,7 @@ function auscode.player:_start(safeMode)
         self:updatePerms(player)
         self:toggleAntisteal(player, self.playerDefaultStates.as)
         self:togglePVP(player, self.playerDefaultStates.pvp)
+        self:toggleUI(player, self.playerDefaultStates.ui)
         modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player:getExtra("as")~=nil and player:getExtra("as") or player:getExtra("as")==nil and "nil"),(player:getExtra("pvp")~=nil and player:getExtra("pvp") or player:getExtra("pvp")==nil and "nil")))
     end)
 
@@ -32,7 +33,7 @@ function auscode.player:_start(safeMode)
             end
         end
 
-        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.85, true, player, "playerUi")
+        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.8, true, player, "playerUi")
         widget:_remove(player)
         widget:update()
 
@@ -54,6 +55,8 @@ function auscode.player:_start(safeMode)
             end
         end
     end)
+
+    return true
 end
 
 function auscode.player:_cleanup()

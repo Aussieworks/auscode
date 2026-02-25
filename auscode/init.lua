@@ -13,6 +13,7 @@ auscode.restartCount = 0 -- number of times auscode has restarted (this does not
 
 -- load auscode modules
 require "auscode.classes"
+require "auscode.utility"
 require "auscode.player"
 require "auscode.commands"
 require "auscode.vehicle"
@@ -37,7 +38,7 @@ function auscode:_start()
             local widgets = modules.services.ui:getPlayersWidgets(player)
             for _, widget in pairs(widgets) do
                 if widget.type == "popupScreen" and widget.name == "playerUi" then
-                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
                     widget:update()
                 end
             end
