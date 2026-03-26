@@ -1,6 +1,6 @@
 modules.classes.task = {}
 
-function modules.classes.task:create(id, period, repeating, func)
+function modules.classes.task:create(id, period, repeating, func, useTime)
     ---@class Task
     ---@field id number
     ---@field period number
@@ -11,11 +11,13 @@ function modules.classes.task:create(id, period, repeating, func)
     local task = {
         _class = "Task",
         id = id,
-        period = period,
+        period = useTime and period*1000 or period,
         repeating = repeating,
         paused = false,
         counter = 0,
+        start = modules.services.tps._last,
         func = func,
+        useTime = useTime
     }
 
     function task:setPaused(paused)
@@ -32,6 +34,7 @@ function modules.classes.task:create(id, period, repeating, func)
 
     function task:resetCounter()
         self.counter = 0
+        if self.useTime then self.start = modules.services.tps._last end
     end
 
     function task:tick()
@@ -39,7 +42,8 @@ function modules.classes.task:create(id, period, repeating, func)
             return
         end
 
-        self.counter = self.counter + 1
+        self.counter = self.useTime and modules.services.tps._last-self.start or self.counter + 1
+
         if self.counter >= self.period then
             self:resetCounter()
             self:func()

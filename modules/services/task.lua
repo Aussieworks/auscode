@@ -13,9 +13,9 @@ function modules.services.task:startService()
     end)
 end
 
-function modules.services.task:create(period, func, repeating)
+function modules.services.task:create(period, func, repeating, useTime)
     local id = #self.tasks + 1
-    local task = modules.classes.task:create(id, period, repeating, func)
+    local task = modules.classes.task:create(id, period, repeating, func, useTime)
     self.tasks[id] = task
     return task
 end
