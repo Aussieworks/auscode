@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "1": {
+      "executable_path": "./stormworks_server",
+      "launch_args": "",
+      "working_directory": "."
+    },
+    "2": {
+      "executable_path": "./stormworks_server",
+      "launch_args": "-port 27016",
+      "working_directory": "."
+    }
+  }
+}
