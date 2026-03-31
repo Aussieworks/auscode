@@ -1,14 +1,23 @@
 {
   "servers": {
     "1": {
-      "executable_path": "./stormworks_server",
+      "_note": "Linux+Steam+Wine: set working_directory to your Stormworks Dedicated Server folder (often ~/.local/share/Steam/steamapps/common/Stormworks Dedicated Server). Use server64.exe or server.exe. Relative working_directory is resolved against the directory containing this JSON file, not the API process cwd. Optional server.config.json (see server.config.example.json) sets name, physics_timestep, max_players, etc. as +args.",
+      "use_wine": true,
+      "wine_binary": "wine64",
+      "wine_prefix": "",
+      "wine_console": false,
+      "executable_path": "server64.exe",
       "launch_args": "",
-      "working_directory": "."
+      "working_directory": "/home/USER/.local/share/Steam/steamapps/common/Stormworks Dedicated Server",
+      "env": {}
     },
     "2": {
-      "executable_path": "./stormworks_server",
+      "_note": "Second server instance example (different port).",
+      "use_wine": true,
+      "executable_path": "server64.exe",
       "launch_args": "-port 27016",
-      "working_directory": "."
+      "working_directory": "/home/USER/.local/share/Steam/steamapps/common/Stormworks Dedicated Server",
+      "env": {}
     }
   }
 }

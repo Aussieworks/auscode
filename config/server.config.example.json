@@ -1,0 +1,25 @@
+{
+  "_internet_list": "Stormworks registers with Steam from the dedicated EXE; Aus cannot call Valve APIs. You need: (1) public IP or correct port-forward on your router, (2) firewall allows the Stormworks ports (UDP; some setups also TCP), (3) Stormworks docs say forward ALL game ports the build uses—often default 25564 plus related ports; match server_config.xml under Wine and these +args. (4) Use ip_bind 0.0.0.0 to listen on all interfaces unless you must bind one NIC. (5) Linux+Wine is unofficial; listing may fail even when direct IP:port works. (6) ASCII server name only (no non-Latin characters).",
+  "_comment": "Copy to server.config.json next to servers.json. Values become +name, +ip_bind, +port, etc. servers.json launch_args overrides duplicate +keys.",
+  "defaults": {
+    "game": {
+      "name": "My Stormworks Server",
+      "ip_bind": "0.0.0.0",
+      "physics_timestep": 180,
+      "max_players": 16,
+      "password": "123",
+      "save_name": "56",
+      "seed": "",
+      "port": 25564
+    },
+    "launch_args": ""
+  },
+  "servers": {
+    "1": {
+      "game": {
+        "name": "auscode fine_WINE server test"
+      },
+      "launch_args": ""
+    }
+  }
+}

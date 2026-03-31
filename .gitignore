@@ -1,1 +1,4 @@
 /_build/
+.gitignore
+# Local manager config (copy from servers.json.example)
+config/servers.json
