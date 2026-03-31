@@ -96,7 +96,7 @@ echo ""
 mkdir -p "${REPO_PARENT}" "${DEDICATED_DIR}" "${INSTALL_ROOT}/steamcmd"
 
 # --- Fetch auscode ---
-if [[ -d "${REPO_ROOT}/.git" ]] || [[ -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]] || [[ -f "${REPO_ROOT}/auscode/server_manager.py" ]]; then
+if [[ -d "${REPO_ROOT}/.git" ]] || [[ -f "${REPO_ROOT}/backend/server_manager.py" ]] || [[ -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]] || [[ -f "${REPO_ROOT}/auscode/server_manager.py" ]]; then
   echo "auscode checkout already present at ${REPO_ROOT}"
 else
   if command -v git >/dev/null 2>&1; then
@@ -121,8 +121,8 @@ else
   fi
 fi
 
-if [[ ! -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]] && [[ ! -f "${REPO_ROOT}/auscode/server_manager.py" ]]; then
-  echo "error: server_manager.py not found under ${REPO_ROOT} (expected auscode/auscode/ or auscode/)" >&2
+if [[ ! -f "${REPO_ROOT}/backend/server_manager.py" ]] && [[ ! -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]] && [[ ! -f "${REPO_ROOT}/auscode/server_manager.py" ]]; then
+  echo "error: server_manager.py not found under ${REPO_ROOT} (expected backend/, auscode/auscode/, or auscode/)" >&2
   exit 1
 fi
 if [[ ! -f "${REPO_ROOT}/install/install_manager.sh" ]]; then

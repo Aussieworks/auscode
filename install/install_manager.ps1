@@ -51,9 +51,15 @@ if (-not $ApiPort) { $ApiPort = $DefaultApiPort }
 if (-not $ApiUrl) { $ApiUrl = "http://127.0.0.1:$ApiPort" }
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$BackendLib = Join-Path $RepoRoot "backend"
 $NestedLib = Join-Path $RepoRoot "auscode\auscode"
 $FlatLib = Join-Path $RepoRoot "auscode"
-if (Test-Path -LiteralPath (Join-Path $NestedLib "server_manager.py") -PathType Leaf) {
+if (Test-Path -LiteralPath (Join-Path $BackendLib "server_manager.py") -PathType Leaf) {
+    $SrcLib = $BackendLib
+    $SrcConfigDir = Join-Path $RepoRoot "backend\config"
+    $ReqFile = Join-Path $RepoRoot "backend\requirements.txt"
+}
+elseif (Test-Path -LiteralPath (Join-Path $NestedLib "server_manager.py") -PathType Leaf) {
     $SrcLib = $NestedLib
     $SrcConfigDir = Join-Path $RepoRoot "auscode\config"
     $ReqFile = Join-Path $RepoRoot "auscode\requirements.txt"
@@ -64,7 +70,7 @@ elseif (Test-Path -LiteralPath (Join-Path $FlatLib "server_manager.py") -PathTyp
     $ReqFile = Join-Path $RepoRoot "requirements.txt"
 }
 else {
-    throw "Cannot find server_manager.py under $RepoRoot (expected auscode\auscode\ or auscode\)."
+    throw "Cannot find server_manager.py under $RepoRoot (expected backend\, auscode\auscode\, or auscode\)."
 }
 
 if (-not $NonInteractive) {

@@ -17,8 +17,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
-# Repo layout: either auscode/auscode/*.py (nested) or auscode/*.py (flat) at REPO_ROOT.
-if [[ -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]]; then
+# Repo layout: backend/ (current), or auscode/auscode/*.py (nested), or auscode/*.py (flat).
+if [[ -f "${REPO_ROOT}/backend/server_manager.py" ]]; then
+  SRC_LIB="${REPO_ROOT}/backend"
+  SRC_CONFIG_DIR="${REPO_ROOT}/backend/config"
+  REQ_FILE="${REPO_ROOT}/backend/requirements.txt"
+elif [[ -f "${REPO_ROOT}/auscode/auscode/server_manager.py" ]]; then
   SRC_LIB="${REPO_ROOT}/auscode/auscode"
   SRC_CONFIG_DIR="${REPO_ROOT}/auscode/config"
   REQ_FILE="${REPO_ROOT}/auscode/requirements.txt"
@@ -27,7 +31,7 @@ elif [[ -f "${REPO_ROOT}/auscode/server_manager.py" ]]; then
   SRC_CONFIG_DIR="${REPO_ROOT}/config"
   REQ_FILE="${REPO_ROOT}/requirements.txt"
 else
-  echo "error: cannot find server_manager.py under ${REPO_ROOT} (expected auscode/auscode/ or auscode/)." >&2
+  echo "error: cannot find server_manager.py under ${REPO_ROOT} (expected backend/, auscode/auscode/, or auscode/)." >&2
   exit 1
 fi
 

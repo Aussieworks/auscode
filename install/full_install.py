@@ -20,10 +20,12 @@ STEAMCMD_TGZ = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.
 
 
 def _repo_has_server_manager(repo_root: Path) -> bool:
-    """True if checkout has server_manager in nested or flat auscode package layout."""
-    return (repo_root / "auscode" / "auscode" / "server_manager.py").is_file() or (
-        repo_root / "auscode" / "server_manager.py"
-    ).is_file()
+    """True if checkout has server_manager (backend/, nested auscode, or flat auscode)."""
+    return (
+        (repo_root / "backend" / "server_manager.py").is_file()
+        or (repo_root / "auscode" / "auscode" / "server_manager.py").is_file()
+        or (repo_root / "auscode" / "server_manager.py").is_file()
+    )
 
 
 def run(cmd: list[str], **kwargs: object) -> None:
