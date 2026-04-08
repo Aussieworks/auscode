@@ -18,6 +18,10 @@ function modules.services.player:startService()
     end
 
     modules.libraries.callbacks:connect("onPlayerJoin", function(steam_id, name, peer_id, is_admin, is_auth)
+        if not steam_id or steam_id == 0 then
+            return -- skip if steam_id is nil or 0
+        end
+
         name = self:_cleanName(name)
         modules.libraries.logging:debug("onPlayerJoin", "Player joined with steam_id: '%s', name: '%s', peer_id: '%s'", steam_id, name, peer_id)
         local player = self:getPlayer(tostring(steam_id))
