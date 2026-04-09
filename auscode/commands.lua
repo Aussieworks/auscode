@@ -358,6 +358,46 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("sit", {"s", "seat", "goto"}, {}, "[groupId]\n \\ Sit in a seat of a vehicle", function (player, full_message, command, args, hasPerm)
+        if args[1] == nil then
+            local groups = modules.services.vehicle:getPlayersVehicleGroups(player, true)
+            if count(groups) == 0 then
+                player:notify("Sit", "You have no vehicles.", 6)
+                return
+            end
+
+            local firstGroup = {}
+            for _, group in pairs(groups) do
+                firstGroup = group
+                break
+            end
+
+            local firstVehicle = {}
+            for _, vehicle in pairs(firstGroup.vehicles) do
+                firstVehicle = vehicle
+                break
+            end
+
+            player:setSeated(firstVehicle.id)
+            return
+        end
+
+        local group = modules.services.vehicle:getGroup(args[1], true)
+
+        if not group then
+            player:notify("Sit", "Vehicle group not found.", 1)
+            return
+        end
+
+        local firstVehicle = {}
+        for _, vehicle in pairs(group.vehicles) do
+            firstVehicle = vehicle
+            break
+        end
+
+        player:setSeated(firstVehicle.id)
+    end))
+
     self:add(modules.services.command:create("warn", {"w"}, {"owner", "admin", "mod"}, "{peerId} {reason} \n \\ Warn a player", function (player, full_message, command, args, hasPerm)
         if not hasPerm then
             return

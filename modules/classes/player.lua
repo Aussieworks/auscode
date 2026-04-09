@@ -141,6 +141,11 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
         return pos
     end
 
+    -- sets the player seated in a specific vehicle and seat
+    function player:setSeated(vehcileId, seatName)
+        return server.setCharacterSeated(self.objectId, vehcileId, seatName)
+    end
+
     -- sends a notification to the player
     ---@param title string
     ---@param message string
