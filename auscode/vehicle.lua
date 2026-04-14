@@ -10,15 +10,10 @@ function auscode.vehicle:_start(safeMode)
         group:setEditable(not group:getOwner():getExtra("as"))
         group:setInvulnerable(not group:getOwner():getExtra("pvp"))
 
-        local firstVehicle = {}
         for _, vehicle in pairs(group.vehicles) do
-            firstVehicle = vehicle
-            break
+            vehicle:setTooltip(string.format("Owner: %s\nGroup ID: %s Vehicle ID: %s",group:getOwner().name,group.groupId, vehicle.id))
+            modules.services.ui:createMapObject("Vehicle", string.format("Owner: %s\nGroup ID: %s Vehicle ID: %s",group:getOwner().name,group.groupId, vehicle.id), modules.classes.widgets.color:create(0,255,0), 1, 12, 0, 0, vehicle.id, nil, nil, "vehicleGroup"..group.groupId)
         end
-
-        group:setTooltip(string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId))
-        modules.services.ui:createMapLabel(string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId), 0, nil, nil, nil, "vehicleGroup"..group.groupId)
-        modules.services.ui:createMapObject("Vehicle", string.format("Owner: %s\nGroup ID: %s",group:getOwner().name,group.groupId), modules.classes.widgets.color:create(0,255,0), 1, 12, 0, 0, firstVehicle.id, nil, nil, "vehicleGroup"..group.groupId)
     end)
 
     self.onGroupDespawnConnection = modules.services.vehicle.onGroupDespawn:connect(function(group)
