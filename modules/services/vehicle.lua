@@ -92,6 +92,7 @@ function modules.services.vehicle:startService()
             modules.libraries.logging:debug("onVehicleDespawn", "Vehicle group despawned with id: '%s'", vGroup.groupId)
             vGroup:despawned()
             self.onGroupDespawn:fire(vGroup)
+            self.loadingVehicles[vGroup.groupId] = nil
             self.loadedVehicles[vGroup.groupId] = nil
             self:_save()
         end
