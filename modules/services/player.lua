@@ -36,6 +36,7 @@ function modules.services.player:startService()
 
         player.inGame = true -- set the player as in-game
         player.peerId = peer_id -- update the peer_id
+        player.objectId = nil -- reset the objectId on join, will be set on load
         self.players[tostring(steam_id)] = player -- add the player to the table
         self.peerIdIndex[tostring(peer_id)] = tostring(steam_id) -- map peerId to steamId
         self:_save() -- save the player service
@@ -152,7 +153,8 @@ function modules.services.player:_load()
                 playerData.auth,
                 playerData.objectId,
                 playerData.perms,
-                playerData.extra
+                playerData.extra,
+                playerData.data
             )
             if not player then
                 modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: '%s'", playerData.steam_id)

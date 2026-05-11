@@ -6,6 +6,12 @@ function auscode.player:_init(safeMode)
 
     self.playerDefaultStates = modules.libraries.settings:getValue("auscodePlayerDefaultStates", true, {as=true,pvp=false,ui=true})
 
+    self.playerSlotTypes = {2,1,1,1,1,1,1,1,1,3} -- 1 is small, 2 is large, 3 is outfit
+
+    self.playerItemLookup = modules.libraries.settings:getValue("auscodePlayerItemLookup", true, {})
+    
+    self.playerDefaultItems = modules.libraries.settings:getValue("auscodePlayerDefaultItems", true, {})
+
     return true
 end
 
@@ -56,6 +62,28 @@ function auscode.player:_start(safeMode)
         end
     end)
 
+    self.pvpEffectsTask = modules.services.task:create(1, function()
+        for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+            if player:getExtra("pvp") == false then
+                local playerData = player:getData(true)
+                if playerData.dead or playerData.incapacitated then
+                    modules.libraries.chat:announce("state", tostring(playerData.dead).." "..tostring(playerData.incapacitated))
+                    player:revive()
+                    modules.libraries.chat:announce("revive", "revive")
+                end
+
+                if playerData.hp < 100 and not (playerData.dead or playerData.incapacitated) then
+                    modules.libraries.chat:announce("hp", playerData.hp)
+                    if playerData.hp ~= 0 then
+                        player:setHp(100)
+                    else
+                        player:revive()
+                    end
+                end
+            end
+        end
+    end, true, false)
+
     return true
 end
 
@@ -65,6 +93,8 @@ function auscode.player:_cleanup()
     self.onLeaveConnection:disconnect()
 end
 
+---@param player Player
+---@param state boolean
 function auscode.player:toggleAntisteal(player, state)
     if state == nil then
         state = not player:getExtra("as")
@@ -86,6 +116,8 @@ function auscode.player:toggleAntisteal(player, state)
     end
 end
 
+---@param player Player
+---@param state boolean
 function auscode.player:togglePVP(player, state)
     if state == nil then
         state = not player:getExtra("pvp")
@@ -108,6 +140,7 @@ function auscode.player:togglePVP(player, state)
 end
 
 ---@param player Player
+---@param state boolean
 function auscode.player:toggleUI(player, state)
     if state == nil then
         state = not player:getExtra("ui")
@@ -126,6 +159,14 @@ function auscode.player:toggleUI(player, state)
     end
 end
 
+function auscode.player:giveItem(player, item, bool, int, float, slot)
+    local inventory = {}
+    for i=1, 10 do
+        inventory[i]=player:getItem(i) or 0
+    end
+
+    modules.libraries.chat:announce("inv", modules.libraries.table:tostring(inventory))
+end
 
 function auscode.player:clearPerms(player)
     for perm, _ in pairs(player:getPerms()) do

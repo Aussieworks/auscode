@@ -55,7 +55,7 @@ function auscode.commands:_createCommands()
 
         local availableCommands = {}
 
-        for _, cmd in pairs(modules.services.command:getComamnds()) do
+        for _, cmd in pairs(modules.services.command:getCommands()) do
             if cmd.enabled and modules.services.command:hasPerm(player, cmd) then
                 table.insert(availableCommands, string.format("?%s %s", cmd.commandstr, cmd.description))
             end
@@ -70,7 +70,7 @@ function auscode.commands:_createCommands()
         end
 
         if not args[1] or args[1] ~= "all" and type(tonumber(args[1])) ~= "number" then
-            player:notify("[Comamnd] Invalid usage", "Usage: ?playerinfo {peerId|'all'}", 1)
+            player:notify("[Command] Invalid usage", "Usage: ?playerinfo {peerId|'all'}", 1)
             return
         end
 
@@ -464,7 +464,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        player:notify("Uptime", auscode.utility:formatTime(modules.services.tps._last), 5)
+        auscode.player:giveItem(player)
     end))
 
     self.onCommandCreation:fire()

@@ -7,8 +7,9 @@ modules.classes.player = {} -- table of player functions
 ---@param auth boolean|nil
 ---@param perms table|nil
 ---@param extra table|nil
+---@param data table|nil
 ---@return Player
-function modules.classes.player:create(peerId, steamId, name, admin, auth, objectId, perms, extra)
+function modules.classes.player:create(peerId, steamId, name, admin, auth, objectId, perms, extra, data)
     ---@class Player
     local player = {
         _class = "Player",
@@ -19,6 +20,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
         auth = auth or false,
         objectId = objectId or nil,
         inGame = true,
+        data = data or {},
         perms = perms or {},
         extra = extra or {}
     }
@@ -90,7 +92,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     end
 
     -- returns the players permissions table
-    ---@return table
+    ---@return table Player.perms
     function player:getPerms()
         return self.perms
     end
@@ -115,13 +117,13 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
 
     -- kills the players character
     function player:kill()
-        local character = server.getPlayerCharacterID(self.peerId)
+        local character = self.objectId or server.getPlayerCharacterID(self.peerId)
         server.killCharacter(character)
     end
 
     -- revives the players character
     function player:revive()
-        local character = server.getPlayerCharacterID(self.peerId)
+        local character = self.objectId or server.getPlayerCharacterID(self.peerId)
         server.reviveCharacter(character)
     end
 
@@ -132,7 +134,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     end
 
     -- returns the players position in the world
-    ---@return table
+    ---@return table matrix
     function player:getPos()
         local pos, worked = server.getPlayerPos(self.peerId)
         if not worked then
@@ -152,6 +154,35 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     ---@param notificationType number
     function player:notify(title, message, notificationType)
         server.notify(self.peerId, title, message, notificationType)
+    end
+
+    -- gets the players data from the server, if update is true it will fetch new data from the server, otherwise it will return the cached data
+    ---@param update boolean|nil
+    ---@return table
+    function player:getData(update)
+        self.data = (update and server.getObjectData(self.objectId) or (self.data or server.getObjectData(self.objectId)))
+        return self.data
+    end
+
+    -- sets the players hp
+    ---@param hp number
+    function player:setHp(hp)
+        server.setCharacterData(self.objectId or server.getPlayerCharacterID(self.peerId), hp, false, false)
+    end
+
+    -- set an item in players inventory
+    ---@param slot number
+    ---@param item number
+    ---@param bool boolean|nil
+    ---@param int integer|nil
+    ---@param float number|nil
+    function player:setItem(slot, item, bool, int, float)
+        server.setCharacterItem(self.objectId, slot, item, bool or false, int, float)
+    end
+
+    ---@param slot number
+    function player:getItem(slot)
+        return server.getCharacterItem(self.objectId, slot)
     end
 
     function player:save()

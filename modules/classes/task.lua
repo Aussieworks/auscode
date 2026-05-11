@@ -20,23 +20,31 @@ function modules.classes.task:create(id, period, repeating, func, useTime)
         useTime = useTime
     }
 
+    -- sets the tasks paused state, if paused is true the task will not run, if false it will run
+    ---@param paused boolean
     function task:setPaused(paused)
         self.paused = paused
     end
 
+    -- sets the tasks period, this is the time in seconds or ticks between each execution of the task
+    ---@param period number
     function task:setPeriod(period)
         self.period = period
     end
 
+    -- sets the tasks repeating state, if repeating is true the task will repeat after each execution, if false it will only run once
+    ---@param repeating boolean
     function task:setRepeating(repeating)
         self.repeating = repeating
     end
 
+    -- resets the tasks counter
     function task:resetCounter()
         self.counter = 0
         if self.useTime then self.start = modules.services.tps._last end
     end
 
+    -- called every tick by the task service to update the task
     function task:tick()
         if self.paused then
             return

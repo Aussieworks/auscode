@@ -108,6 +108,11 @@ function modules.services.command:remove(commandstr)
     end
 end
 
+-- runs the command with the inputed command string
+---@param command string
+---@param full_message string
+---@param player Player
+---@param args table
 function modules.services.command:run(command, full_message, player, args)
     local cmd = self:getCommand(command)
     if cmd == nil then
@@ -129,6 +134,9 @@ function modules.services.command:run(command, full_message, player, args)
     cmd:run(player, full_message, command, args, hasPerm)
 end
 
+-- gets command by command string or alias, returns nil if not found
+---@param command string
+---@return Command|nil
 function modules.services.command:getCommand(command)
     if self.commands[command] then
         return self.commands[command]
@@ -144,7 +152,9 @@ function modules.services.command:getCommand(command)
     end
 end
 
-function modules.services.command:getComamnds()
+-- gets all commands
+---@return table<string, Command>
+function modules.services.command:getCommands()
     return self.commands
 end
 
