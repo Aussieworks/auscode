@@ -6,6 +6,7 @@ function modules.services.player:initService()
     self.onJoin = modules.libraries.event:create()
     self.onLeave = modules.libraries.event:create()
     self.onLoad = modules.libraries.event:create() -- doesnt work in singleplayer
+    self.onItemDrop = modules.libraries.event:create()
 
     self.players = {}
     self.peerIdIndex = {} -- used to convert peerId to steamId
@@ -72,6 +73,17 @@ function modules.services.player:startService()
                 modules.libraries.logging:debug("onObjectLoad", "Player loaded with steam_id: '%s', name: '%s', peer_id: '%s'",player.steamId, player.name, player.peerId)
                 self:_save() -- save the player service
                 self.onLoad:fire(player) -- fire the event
+            end
+        end
+    end)
+
+    modules.libraries.callbacks:connect("onEquipmentDrop", function (playerObjectId, itemObjectId, item)
+        local players = self:getOnlinePlayers()
+
+        for _, player in pairs(players) do
+            if player.objectId == playerObjectId then
+                self.onItemDrop:fire(player, itemObjectId, item)
+                break
             end
         end
     end)

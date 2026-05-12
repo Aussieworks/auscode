@@ -464,7 +464,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        auscode.player:giveItem(player)
+        auscode.player:giveDefaultItems(player)
     end))
 
     self.onCommandCreation:fire()

@@ -6,11 +6,13 @@ function auscode.player:_init(safeMode)
 
     self.playerDefaultStates = modules.libraries.settings:getValue("auscodePlayerDefaultStates", true, {as=true,pvp=false,ui=true})
 
-    self.playerSlotTypes = {2,1,1,1,1,1,1,1,1,3} -- 1 is small, 2 is large, 3 is outfit
-
     self.playerItemLookup = modules.libraries.settings:getValue("auscodePlayerItemLookup", true, {})
-    
+
     self.playerDefaultItems = modules.libraries.settings:getValue("auscodePlayerDefaultItems", true, {})
+
+    self.playerDespawnDroppedItems = modules.libraries.settings:getValue("auscodePlayerDespawnDroppedItems", true, true)
+
+    self.playerDroppedItemDespawnTime = modules.libraries.settings:getValue("auscodePlayerDroppedItemDespawnTime", true, 20)
 
     return true
 end
@@ -62,6 +64,14 @@ function auscode.player:_start(safeMode)
         end
     end)
 
+    self.onItemDropConnection = modules.services.player.onItemDrop:connect(function(player, itemObjectId, item)
+        if self.playerDespawnDroppedItems then
+            local task = modules.services.task:create(self.playerDroppedItemDespawnTime, function()
+                server.despawnObject(itemObjectId, true)
+            end, false, true)
+        end
+    end)
+
     self.pvpEffectsTask = modules.services.task:create(1, function()
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             if player:getExtra("pvp") == false then
@@ -94,7 +104,7 @@ function auscode.player:_cleanup()
 end
 
 ---@param player Player
----@param state boolean
+---@param state boolean|nil
 function auscode.player:toggleAntisteal(player, state)
     if state == nil then
         state = not player:getExtra("as")
@@ -117,7 +127,7 @@ function auscode.player:toggleAntisteal(player, state)
 end
 
 ---@param player Player
----@param state boolean
+---@param state boolean|nil
 function auscode.player:togglePVP(player, state)
     if state == nil then
         state = not player:getExtra("pvp")
@@ -140,7 +150,7 @@ function auscode.player:togglePVP(player, state)
 end
 
 ---@param player Player
----@param state boolean
+---@param state boolean|nil
 function auscode.player:toggleUI(player, state)
     if state == nil then
         state = not player:getExtra("ui")
@@ -159,13 +169,42 @@ function auscode.player:toggleUI(player, state)
     end
 end
 
+---@param player Player
 function auscode.player:giveItem(player, item, bool, int, float, slot)
+    if not item then return false end
+
+    if type(item) == "string" then
+        item = self.playerItemLookup[item]
+        if not item then
+            modules.libraries.logging:info("AusCode", "Item with name: %s not found in playerItemLookup, cannot give item to player: %s", item, player.name)
+            return false
+        end
+    end
+
     local inventory = {}
     for i=1, 10 do
         inventory[i]=player:getItem(i) or 0
     end
 
-    modules.libraries.chat:announce("inv", modules.libraries.table:tostring(inventory))
+    if not slot then
+        for i=1, 10 do
+            if inventory[i] == 0 then
+                if player:setItem(i, item, bool, int, float) then
+                    modules.libraries.logging:info("AusCode", "Given item: %s to player: %s in slot: %s", item, player.name, i)
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
+    player:setItem(slot, item, bool, int, float)
+end
+
+function auscode.player:giveDefaultItems(player)
+    for slot, itemData in pairs(self.playerDefaultItems) do
+        self:giveItem(player, itemData[1], itemData[2], itemData[3], itemData[4], slot)
+    end
 end
 
 function auscode.player:clearPerms(player)

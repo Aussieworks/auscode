@@ -176,11 +176,13 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     ---@param bool boolean|nil
     ---@param int integer|nil
     ---@param float number|nil
+    ---@return boolean success
     function player:setItem(slot, item, bool, int, float)
-        server.setCharacterItem(self.objectId, slot, item, bool or false, int, float)
+        return server.setCharacterItem(self.objectId, slot, item, bool or false, int, float)
     end
 
     ---@param slot number
+    ---@return number id, boolean success
     function player:getItem(slot)
         return server.getCharacterItem(self.objectId, slot)
     end
