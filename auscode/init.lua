@@ -15,8 +15,8 @@ auscode.restartCount = 0 -- number of times auscode has restarted (this does not
 require "auscode.classes"
 require "auscode.utility"
 require "auscode.player"
-require "auscode.commands"
 require "auscode.vehicle"
+require "auscode.commands"
 
 modules.onStart:connect(function()
     auscode:_start()
@@ -30,44 +30,6 @@ function auscode:_start()
             modules.libraries.logging:info("AusCode", "Started module: "..module.name)
         end
     end
-
-    -- player ui task
-    modules.services.task:create(10, function(task)
-        local players = modules.services.player:getOnlinePlayers()
-        for _, player in pairs(players) do
-            local widgets = modules.services.ui:getPlayersWidgets(player)
-            for _, widget in pairs(widgets) do
-                if widget.type == "popupScreen" and widget.name == "playerUi" then
-                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
-                    widget:update()
-                end
-            end
-        end
-    end, true, false)
-
-    -- vehicle map label task
-    modules.services.task:create(1, function(task)
-        for _, player in pairs(modules.services.player:getOnlinePlayers()) do
-            for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
-                local vehicleUi = {}
-                for _, widget in pairs(modules.services.ui:getWidgetsByName("vehicleGroup"..group.groupId)) do
-                    vehicleUi[widget.parentId] = widget
-                end
-                for _, vehicle in pairs(group.vehicles) do
-                    local pos = vehicle:getPos()
-                    local x,y,z = matrix.position(pos)
-                    local widget = vehicleUi[vehicle.id]
-
-                    if widget then
-                        widget.markerType = y <= 5 and 17 or y <= 200 and 12 or 13
-                        widget.x = x
-                        widget.z = z
-                        widget:update()
-                    end
-                end
-            end
-        end
-    end, true, false)
 
     modules.libraries.chat:announce("AusCode", "Hello from AusCode!")
 end
@@ -98,13 +60,4 @@ function auscode:restart(safeMode)
             modules.libraries.logging:info("AusCode", "Restarted module: "..module.name)
         end
     end
-end
-
--- helper function to count items in a table
-function count(tbl)
-    local count = 0
-    for _ in pairs(tbl) do
-        count = count + 1
-    end
-    return count
 end

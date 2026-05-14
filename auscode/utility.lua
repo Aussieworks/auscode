@@ -9,6 +9,15 @@ function auscode.utility:_start(safeMode)
     return true
 end
 
+-- helper function to count items in a table
+function count(tbl)
+    local count = 0
+    for _ in pairs(tbl) do
+        count = count + 1
+    end
+    return count
+end
+
 function auscode.utility:formatTime(milliseconds)
     local totalSeconds = math.floor(milliseconds / 1000)
 	local hours = math.floor(totalSeconds / 3600)

@@ -38,6 +38,30 @@ function auscode.vehicle:_start(safeMode)
             modules.services.ui:removeWidget(widget.id)
         end
     end)
+
+    self.vehicleUITask = modules.services.task:create(1, function(task)
+        for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+            for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
+                local vehicleUi = {}
+                for _, widget in pairs(modules.services.ui:getWidgetsByName("vehicleGroup"..group.groupId)) do
+                    vehicleUi[widget.parentId] = widget
+                end
+                for _, vehicle in pairs(group.vehicles) do
+                    local pos = vehicle:getPos()
+                    local x,y,z = matrix.position(pos)
+                    local widget = vehicleUi[vehicle.id]
+
+                    if widget then
+                        widget.markerType = y <= 5 and 17 or y <= 200 and 12 or 13
+                        widget.x = x
+                        widget.z = z
+                        widget:update()
+                    end
+                end
+            end
+        end
+    end, true, false)
+
     return true
 end
 

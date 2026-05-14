@@ -96,6 +96,20 @@ function auscode.player:_start(safeMode)
         end
     end, true, false)
 
+    -- player ui task
+    self.playerUITask = modules.services.task:create(10, function(task)
+        local players = modules.services.player:getOnlinePlayers()
+        for _, player in pairs(players) do
+            local widgets = modules.services.ui:getPlayersWidgets(player)
+            for _, widget in pairs(widgets) do
+                if widget.type == "popupScreen" and widget.name == "playerUi" then
+                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    widget:update()
+                end
+            end
+        end
+    end, true, false)
+
     return true
 end
 
@@ -103,6 +117,8 @@ function auscode.player:_cleanup()
     self.onJoinConnection:disconnect()
     self.onLoadConnection:disconnect()
     self.onLeaveConnection:disconnect()
+    self.onItemDropConnection:disconnect()
+    self.onRespawnConnection:disconnect()
 end
 
 ---@param player Player
