@@ -463,6 +463,30 @@ function auscode.commands:_createCommands()
         modules.libraries.chat:announce("[Message] To: "..targetPlayer.name, message, player.peerId)
     end))
 
+    self:add(modules.services.command:create("tool", {"t","item"}, {}, "{itemName/itemId} [slot] \n \\ Give yourself an item", function (player, full_message, command, args, hasPerm)
+        if not args[1] then
+            player:notify("[Command] Invalid usage", "Usage: ?tool {itemName/itemId}", 6)
+            return
+        end
+
+        local item = args[1]
+        local slot = args[2]
+
+        if type(tonumber(item)) == "number" then
+            item = tonumber(item)
+        end
+
+        if type(tonumber(slot)) == "number" then
+            slot = tonumber(slot)
+        end
+
+        if auscode.player:giveItem(player, item, false, 10, 100, slot) then
+            player:notify("Tool", "Given item: "..args[1], 5)
+        else
+            player:notify("Tool", "Failed to give item: "..args[1], 6)
+        end
+    end))
+
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
         auscode.player:giveDefaultItems(player)
     end))

@@ -7,6 +7,7 @@ function modules.services.player:initService()
     self.onLeave = modules.libraries.event:create()
     self.onLoad = modules.libraries.event:create() -- doesnt work in singleplayer
     self.onItemDrop = modules.libraries.event:create()
+    self.onRespawn = modules.libraries.event:create()
 
     self.players = {}
     self.peerIdIndex = {} -- used to convert peerId to steamId
@@ -85,6 +86,13 @@ function modules.services.player:startService()
                 self.onItemDrop:fire(player, itemObjectId, item)
                 break
             end
+        end
+    end)
+
+    modules.libraries.callbacks:connect("onPlayerRespawn", function (peer_id)
+        local player = self:getPlayerByPeer(peer_id)
+        if player then
+            self.onRespawn:fire(player)
         end
     end)
 end

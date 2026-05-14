@@ -30,6 +30,7 @@ function auscode.player:_start(safeMode)
         self:togglePVP(player, self.playerDefaultStates.pvp)
         self:toggleUI(player, self.playerDefaultStates.ui)
         modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player:getExtra("as")~=nil and player:getExtra("as") or player:getExtra("as")==nil and "nil"),(player:getExtra("pvp")~=nil and player:getExtra("pvp") or player:getExtra("pvp")==nil and "nil")))
+        self:giveDefaultItems(player)
     end)
 
     self.onLoadConnection = modules.services.player.onLoad:connect(function(player)
@@ -72,18 +73,19 @@ function auscode.player:_start(safeMode)
         end
     end)
 
+    self.onRespawnConnection = modules.services.player.onRespawn:connect(function(player)
+        self:giveDefaultItems(player)
+    end)
+
     self.pvpEffectsTask = modules.services.task:create(1, function()
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             if player:getExtra("pvp") == false then
                 local playerData = player:getData(true)
                 if playerData.dead or playerData.incapacitated then
-                    modules.libraries.chat:announce("state", tostring(playerData.dead).." "..tostring(playerData.incapacitated))
                     player:revive()
-                    modules.libraries.chat:announce("revive", "revive")
                 end
 
                 if playerData.hp < 100 and not (playerData.dead or playerData.incapacitated) then
-                    modules.libraries.chat:announce("hp", playerData.hp)
                     if playerData.hp ~= 0 then
                         player:setHp(100)
                     else
@@ -174,11 +176,12 @@ function auscode.player:giveItem(player, item, bool, int, float, slot)
     if not item then return false end
 
     if type(item) == "string" then
-        item = self.playerItemLookup[item]
-        if not item then
+        local foundItem = self.playerItemLookup[item]
+        if not foundItem then
             modules.libraries.logging:info("AusCode", "Item with name: %s not found in playerItemLookup, cannot give item to player: %s", item, player.name)
             return false
         end
+        item = foundItem
     end
 
     local inventory = {}
@@ -198,7 +201,7 @@ function auscode.player:giveItem(player, item, bool, int, float, slot)
         return false
     end
 
-    player:setItem(slot, item, bool, int, float)
+    return player:setItem(slot, item, bool, int, float)
 end
 
 function auscode.player:giveDefaultItems(player)
