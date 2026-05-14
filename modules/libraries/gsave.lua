@@ -1,5 +1,13 @@
 modules.libraries.gsave = {}
 
+function modules.libraries.gsave:saveTable(tableName, value)
+    g_savedata[tableName] = value
+end
+
+function modules.libraries.gsave:loadTable(tableName)
+    return g_savedata[tableName]
+end
+
 -- save the inputed service into g_savedata
 ---@param name string name of the service
 ---@param service any the service to save

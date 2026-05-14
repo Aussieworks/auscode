@@ -4,6 +4,8 @@ auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player
 function auscode.player:_init(safeMode)
     self.playerPermissions = modules.libraries.settings:getValue("auscodePlayerPermissions", true, {})
 
+    self.playerDefaultPermissions = modules.libraries.settings:getValue("auscodePlayerDefaultPermissions", true, {})
+
     self.playerDefaultStates = modules.libraries.settings:getValue("auscodePlayerDefaultStates", true, {as=true,pvp=false,ui=true})
 
     self.playerItemLookup = modules.libraries.settings:getValue("auscodePlayerItemLookup", true, {})
@@ -14,18 +16,24 @@ function auscode.player:_init(safeMode)
 
     self.playerDroppedItemDespawnTime = modules.libraries.settings:getValue("auscodePlayerDroppedItemDespawnTime", true, 20)
 
+    self.playerPermissionsWeight = modules.libraries.settings:getValue("auscodePlayerPermissionsWeight", true, {})
+
+    self.playerPermissionsTag = modules.libraries.settings:getValue("auscodePlayerPermissionsTag", true, {})
+
     return true
 end
 
 function auscode.player:_start(safeMode)
     for _, player in pairs(modules.services.player:getOnlinePlayers()) do
         self:updatePerms(player)
+        self:giveDefaultPerms(player)
         self:toggleAntisteal(player, player:getExtra("as") or false)
         self:togglePVP(player, player:getExtra("pvp") or false)
     end
 
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
         self:updatePerms(player)
+        self:giveDefaultPerms(player)
         self:toggleAntisteal(player, self.playerDefaultStates.as)
         self:togglePVP(player, self.playerDefaultStates.pvp)
         self:toggleUI(player, self.playerDefaultStates.ui)
@@ -234,6 +242,13 @@ function auscode.player:clearPerms(player)
 end
 
 ---@param player Player
+function auscode.player:giveDefaultPerms(player)
+    for _, perm in pairs(self.playerDefaultPermissions) do
+        player:setPerm(perm, true)
+    end
+end
+
+---@param player Player
 function auscode.player:updatePerms(player)
     modules.libraries.logging:info("AusCode","Updating permissions for player: %s", player.name)
     local permissions = {}
@@ -249,4 +264,25 @@ function auscode.player:updatePerms(player)
         player:setPerm(perm, true)
     end
     player:save()
+end
+
+function auscode.player:getPermTag(perm)
+    return self.playerPermissionsTag[perm] or ""
+end
+
+-- get the highest permission level for a player
+function auscode.player:getHighestPerm(player)
+    local perms = player:getPerms()
+    local topPerm = nil
+    local topWeight = 0
+
+    for perm, _ in pairs(perms) do
+        local weight = self.playerPermissionsWeight[perm] or 0
+        if weight > topWeight then
+            topPerm = perm
+            topWeight = weight
+        end
+    end
+
+    return topPerm
 end

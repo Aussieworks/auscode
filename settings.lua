@@ -14,6 +14,19 @@ local settings = {
     auscodePlayerPermissions = {value = {
         ["76561199240115313"]={"admin","owner"},
     }, default = {}}, -- List of players and their permissions (by SteamID)
+    auscodePlayerDefaultPermissions = {value = {"player"}, default = {"player"}}, -- Default permissions for players not listed in auscodePlayerPermissions
+    auscodePlayerPermissionsWeight = {value = {
+        ["owner"]=4,
+        ["admin"]=3,
+        ["mod"]=2,
+        ["player"]=1,
+    }, default = {}}, -- Weight of each permission level, used to determine which permission takes precedence when a player has multiple permissions
+    auscodePlayerPermissionsTag = {value = {
+        ["owner"]="[Owner]",
+        ["admin"]="[Admin]",
+        ["mod"]="[Mod]",
+        ["player"]="[Player]",
+    }, default = {}}, -- Tag and for each permission level. used in custom chat
     auscodePlayerDefaultStates = {value = {as=true,pvp=false,ui=true}, default = {as=true,pvp=false,ui=true}}, -- Default player states
     auscodePlayerItemLookup = {value = {}, default = {}}, -- Lookup table for player items, used to convert string item names to their actual item IDs. eg {["scuba"]=1,["medkit"]=11}
     auscodePlayerDefaultItems = {value = {
@@ -26,6 +39,9 @@ local settings = {
     -- Vehicle settings
     auscodeVehicleMapObjects = {value = true, default = true}, -- If custom vehicle map objects should be created
     auscodeVehicleAllowWorkshop = {value = true, default = true}, -- If players should be allowed to spawn workshop vehicles
+    -- Chat settings
+    auscodeChatCustomChat = {value = true, default = true}, -- If custom chat functionality should be enabled
+    auscodeChatMessageLimit = {value = 100, default = 100}, -- Maximum number of chat messages to store
 }
 
 return settings

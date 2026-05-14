@@ -17,6 +17,7 @@ require "auscode.utility"
 require "auscode.player"
 require "auscode.vehicle"
 require "auscode.commands"
+require "auscode.chat"
 
 modules.onStart:connect(function()
     auscode:_start()

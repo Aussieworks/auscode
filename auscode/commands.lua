@@ -469,7 +469,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        auscode.player:giveDefaultItems(player)
+        modules.libraries.chat:announce("AusCode", modules.libraries.table:tostring(auscode.chat.messages), -1, false)
     end))
 
     self.onCommandCreation:fire()
