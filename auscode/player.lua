@@ -37,7 +37,7 @@ function auscode.player:_start(safeMode)
         self:toggleAntisteal(player, self.playerDefaultStates.as)
         self:togglePVP(player, self.playerDefaultStates.pvp)
         self:toggleUI(player, self.playerDefaultStates.ui)
-        modules.libraries.chat:announce("AusCode", string.format("Welcome %s!, %s %s",player.name,(player:getExtra("as")~=nil and player:getExtra("as") or player:getExtra("as")==nil and "nil"),(player:getExtra("pvp")~=nil and player:getExtra("pvp") or player:getExtra("pvp")==nil and "nil")))
+        modules.libraries.chat:announce("[Player] Join", string.format("%s (%s) has joined the server.", player.name, player.peerId))
         self:giveDefaultItems(player)
     end)
 
@@ -71,6 +71,8 @@ function auscode.player:_start(safeMode)
                 group:despawn(true)
             end
         end
+
+        modules.libraries.chat:announce("[Player] Leave", string.format("%s (%s) has left the server.", player.name, player.peerId))
     end)
 
     self.onItemDropConnection = modules.services.player.onItemDrop:connect(function(player, itemObjectId, item)

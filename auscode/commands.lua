@@ -178,6 +178,11 @@ function auscode.commands:_createCommands()
 
         local groups = modules.services.vehicle:getAllGroups()
 
+        if count(groups) == 0 then
+            player:notify("Vehicle", "There are no vehicles to despawn.", 6)
+            return
+        end
+
         for _, group in pairs(groups) do
             group:despawn(true)
         end
@@ -468,8 +473,32 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("vehicleinfo", {"vinfo", "vi"}, {}, "{groupId} \n \\ Get vehicle group info", function (player, full_message, command, args, hasPerm)
+        if not args[1] then
+            player:notify("[Command] Invalid usage", "Usage: ?vehicleinfo {groupId}", 6)
+            return
+        end
+
+        local group = modules.services.vehicle:getGroup(args[1], true)
+
+        if not group then
+            player:notify("VehicleInfo", "Vehicle group: "..args[1].." not found.", 1)
+            return
+        end
+
+        local info = string.format("Group ID: %s\nOwner: %s\nVoxel Count: %s\nSub-body Count: %s",
+            group.groupId,
+            group:getOwner().name,
+            auscode.vehicle:getVoxelCount(group),
+            auscode.vehicle:getSubBodyCount(group)
+        )
+
+        modules.libraries.chat:announce("[Command] VehicleInfo:", info, player.peerId)
+    end))
+
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        modules.libraries.chat:announce("AusCode", modules.libraries.table:tostring(auscode.chat.messages), -1, false)
+        local group = modules.services.vehicle:getGroup(args[1], true)
+        modules.libraries.chat:announce("[Command] Test", tostring(auscode.vehicle:getSubBodyCount(group)), player.peerId)
     end))
 
     self.onCommandCreation:fire()

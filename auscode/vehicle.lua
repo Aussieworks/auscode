@@ -4,6 +4,9 @@ auscode.vehicle = auscode.classes.module:create("vehicle", {"ChickenMst"}, "vehi
 function auscode.vehicle:_init(safeMode)
     self.mapObjects = modules.libraries.settings:getValue("auscodeVehicleMapObjects", true, true)
     self.allowWorkshop = modules.libraries.settings:getValue("auscodeVehicleAllowWorkshop", true, true)
+    self.voxelLimit = modules.libraries.settings:getValue("auscodeVehicleVoxelLimit", true, 10000)
+    self.subBodyLimit = modules.libraries.settings:getValue("auscodeVehicleSubBodyLimit", true, 10)
+    self.groupLimit = modules.libraries.settings:getValue("auscodeVehicleGroupLimit", true, 1)
     return true
 end
 
@@ -23,12 +26,39 @@ function auscode.vehicle:_start(safeMode)
         group:setEditable(not group:getOwner():getExtra("as"))
         group:setInvulnerable(not group:getOwner():getExtra("pvp"))
 
+        if self:getVoxelCount(group) > self.voxelLimit then
+            local player = group:getOwner()
+            player:notify("Vehicle", "Your vehicle/s voxel count exceeds the limit ("..self:getVoxelCount(group).."/"..self.voxelLimit.."). Vehicle despawned.", 6)
+            group:despawn(true)
+            return
+        end
+
+        if self:getSubBodyCount(group) > self.subBodyLimit then
+            local player = group:getOwner()
+            player:notify("Vehicle", "Your vehicle/s sub-body count exceeds the limit ("..self:getSubBodyCount(group).."/"..self.subBodyLimit.."). Vehicle despawned.", 6)
+            group:despawn(true)
+            return
+        end
+
+        while count(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true)) > self.groupLimit do
+            local oldestGroup = self:getOldestGroup(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true))
+            if oldestGroup then
+                local player = group:getOwner()
+                player:notify("Vehicle", "You have exceeded the maximum number of vehicle groups ("..self.groupLimit.."). Oldest vehicle group despawned.", 1)
+                oldestGroup:despawn(true)
+            else
+                break
+            end
+        end
+
         for _, vehicle in pairs(group.vehicles) do
             vehicle:setTooltip(string.format("Owner: %s\nGroup ID: %s Vehicle ID: %s",group:getOwner().name,group.groupId, vehicle.id))
             if self.mapObjects then
                 modules.services.ui:createMapObject("Vehicle", string.format("Owner: %s\nGroup ID: %s Vehicle ID: %s",group:getOwner().name,group.groupId, vehicle.id), modules.classes.widgets.color:create(0,255,0), 1, 12, 0, 0, vehicle.id, nil, nil, "vehicleGroup"..group.groupId)
             end
         end
+
+        modules.libraries.chat:announce("[Vehicle] Spawn", string.format("%s Spawned vehicle group: %s (Voxels: %s, Sub-Bodies: %s)",group:getOwner().name,group.groupId,self:getVoxelCount(group),self:getSubBodyCount(group)), -1)
     end)
 
     self.onGroupDespawnConnection = modules.services.vehicle.onGroupDespawn:connect(function(group)
@@ -87,4 +117,37 @@ function auscode.vehicle:isWorkshop(vehicleGroup, player)
     end
 
     return true
+end
+
+---@param group VehicleGroup|nil
+---@return number
+function auscode.vehicle:getVoxelCount(group)
+    if not group then return 0 end
+    local info = group:getInfo()
+    if info and info.voxels then
+        return info.voxels
+    end
+    return 0
+end
+
+---@param group VehicleGroup|nil
+function auscode.vehicle:getSubBodyCount(group)
+    if not group then return 0 end
+
+    return count(group.vehicles)
+end
+
+---@param groups VehicleGroup[]
+function auscode.vehicle:getOldestGroup(groups)
+    local oldest = 0
+    local oldestGroup = nil
+    for i, group in pairs(groups) do
+        if group and group.spawnTime then
+            if not oldestGroup or group.spawnTime < oldest then
+                oldest = group.spawnTime
+                oldestGroup = group
+            end
+        end
+    end
+    return oldestGroup
 end
