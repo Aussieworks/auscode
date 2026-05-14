@@ -43,7 +43,7 @@ function auscode:_start()
                 end
             end
         end
-    end, true)
+    end, true, false)
 
     -- vehicle map label task
     modules.services.task:create(1, function(task)
@@ -67,7 +67,7 @@ function auscode:_start()
                 end
             end
         end
-    end, true)
+    end, true, false)
 
     modules.libraries.chat:announce("AusCode", "Hello from AusCode!")
 end

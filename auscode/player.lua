@@ -85,7 +85,7 @@ function auscode.player:_start(safeMode)
                     player:revive()
                 end
 
-                if playerData.hp < 100 and not (playerData.dead or playerData.incapacitated) then
+                if playerData.hp and playerData.hp < 100 and not (playerData.dead or playerData.incapacitated) then
                     if playerData.hp ~= 0 then
                         player:setHp(100)
                     else

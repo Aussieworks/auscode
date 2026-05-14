@@ -203,27 +203,8 @@ function auscode.commands:_createCommands()
         end
     end))
 
-    self:add(modules.services.command:create("ui", {}, {}, "{'list'|'toggle'|'create'} \n \\ Temporary ui command", function (player, full_message, command, args, hasPerm)
-		if args[1] == "clear" then
-			local widgets = modules.services.ui:getPlayersShownWidgets(player)
-			for _, widget in pairs(widgets) do
-				widget:destroy()
-				modules.services.ui:removeWidget(widget.id)
-			end
-			return
-		elseif args[1] == "list" then
-			local widgets = modules.services.ui:getPlayersShownWidgets(player)
-			local str = "Widgets:\n"
-			for _, widget in pairs(widgets) do
-				str = str .. "ID: " .. widget.id .. ", Type: " .. widget.type .. ", Player: " .. (widget.playerId or "Nil") .. "\n"
-			end
-			modules.libraries.logging:info("ui", str)
-			return
-		elseif args[1] == "toggle" then
-			auscode.player:toggleUI(player)
-        elseif args[1] == "create" then
-            modules.services.ui:createPopupScreen("Loading", -0.9, 0.8, player:getExtra("ui"), player, "playerUi")
-		end
+    self:add(modules.services.command:create("ui", {}, {}, " \n \\ Toggle UI", function (player, full_message, command, args, hasPerm)
+		auscode.player:toggleUI(player)
 	end))
 
     self:add(modules.services.command:create("purge", {}, {"owner"}, "\n \\ Purge gsave", function (player, full_message, command, args, hasPerm)
@@ -235,7 +216,7 @@ function auscode.commands:_createCommands()
         player:notify("Auth", "You are now authenticated.", 5)
     end))
 
-    self:add(modules.services.command:create("tpp", {}, {}, "{peerId} [peerId]\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("tpp", {}, {}, "{peerId}\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
         if not args[1] or type(tonumber(args[1])) ~= "number" then
             player:notify("[Command] Invalid usage", "Usage: ?tpp {peerId} [peerId]", 6)
             return
