@@ -1,6 +1,6 @@
 ---@class addonService: Service
 ---@field addons table<string, Addon>
-modules.services.addon = modules.services:createService("addons", "Addons Service", {"ChickenMst"})
+modules.services.addon = modules.services:createService("addon", "Addon Service", {"ChickenMst"})
 
 function modules.services.addon:initService()
     self.addons = {} ---@type table <string, Addon>
@@ -8,7 +8,6 @@ function modules.services.addon:initService()
 end
 
 function modules.services.addon:startService()
-    self:_loadAddons() -- load the addons
 end
 
 -- create a new addon with the inputed name, version, description and authors
@@ -75,31 +74,57 @@ function modules.services.addon:disable(name)
     end
 end
 
--- internal function to load all addons in the addons table
-function modules.services.addon:_loadAddons()
-    for name, addon in pairs(self.addons) do
-        modules.libraries.logging:debug("services.addon", "Loading addon: '%s'", name)
-        if not addon.hasInit then
-            modules.libraries.logging:debug("services.addon", "Initializing addon: '%s'", name)
-            if addon:_init() then
-                modules.libraries.logging:debug("services.addon", "Addon '%s' initialized", name)
-            else
-                modules.libraries.logging:warning("services.addon", "Addon '%s' failed to initialize, disableing addon", name)
-                self:disable(name) -- disable the addon if it fails to load
-            end
-        else
-            modules.libraries.logging:debug("services.addon", "Skipped Initializing Addon '%s'. already initialized", name)
-        end
+--- get addon with inputed name
+---@param name string
+---@return Addon
+function modules.services.addon:getAddon(name)
+    return self.addons[name]
+end
 
-        if not addon.hasStarted and addon.hasInit then
-            if addon:_start() then
-                modules.libraries.logging:debug("services.addon", "Addon '%s' started", name)
-            else
-                modules.libraries.logging:error("services.addon", "Addon '%s' failed to start", name)
-                self:disable(name) -- disable the addon if it fails to start
-            end
+--- get all addons
+---@return table<string, Addon>
+function modules.services.addon:getAddons()
+    return self.addons
+end
+
+-- load the addon with the inputed name, if it exists
+---@param addon Addon
+function modules.services.addon:loadAddon(addon)
+    if not addon then
+        modules.libraries.logging:error("services.addon:loadAddon()", "Addon does not exist") -- print an error to the console
+        return
+    end
+
+    local name = addon.name
+
+    modules.libraries.logging:debug("services.addon", "Loading addon: '%s'", name)
+    if not addon.hasInit then
+        modules.libraries.logging:debug("services.addon", "Initializing addon: '%s'", name)
+        if addon:_init() then
+            modules.libraries.logging:debug("services.addon", "Addon '%s' initialized", name)
         else
-            modules.libraries.logging:debug("services.addon", "Skipped starting Addon '%s'. already started", name)
+            modules.libraries.logging:warning("services.addon", "Addon '%s' failed to initialize, disableing addon", name)
+            self:disable(name) -- disable the addon if it fails to load
         end
+    else
+        modules.libraries.logging:debug("services.addon", "Skipped Initializing Addon '%s'. already initialized", name)
+    end
+
+    if not addon.hasStarted and addon.hasInit then
+        if addon:_start() then
+            modules.libraries.logging:debug("services.addon", "Addon '%s' started", name)
+        else
+            modules.libraries.logging:error("services.addon", "Addon '%s' failed to start", name)
+            self:disable(name) -- disable the addon if it fails to start
+        end
+    else
+        modules.libraries.logging:debug("services.addon", "Skipped starting Addon '%s'. already started", name)
+    end
+end
+
+-- load all addons in the addons table
+function modules.services.addon:loadAddons()
+    for name, addon in pairs(self.addons) do
+        self:loadAddon(addon)
     end
 end

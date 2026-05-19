@@ -2,6 +2,8 @@
 auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player handleing for auscode") -- player related functions
 
 function auscode.player:_init(safeMode)
+    self.playerAutoAuth = modules.libraries.settings:getValue("auscodePlayerAutoAuth", true, true)
+
     self.playerPermissions = modules.libraries.settings:getValue("auscodePlayerPermissions", true, {})
 
     self.playerDefaultPermissions = modules.libraries.settings:getValue("auscodePlayerDefaultPermissions", true, {})
@@ -42,6 +44,8 @@ function auscode.player:_start(safeMode)
     end)
 
     self.onLoadConnection = modules.services.player.onLoad:connect(function(player)
+        player:setAuth(self.playerAutoAuth)
+
         local widgets = modules.services.ui:getPlayersWidgets(player)
 
         for _, widget in pairs(widgets) do
@@ -55,6 +59,8 @@ function auscode.player:_start(safeMode)
         widget:update()
 
         self:toggleUI(player, self.playerDefaultStates.ui)
+
+        auscode.chat:send()
     end)
 
     self.onLeaveConnection = modules.services.player.onLeave:connect(function(player)

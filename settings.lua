@@ -11,6 +11,7 @@ local settings = {
     auscodeRules = {value = "Not Set", default = "Not Set"},
     auscodeDiscordLink = {value = "", default = ""}, -- Discord link for the server
     -- Player settings
+    auscodePlayerAutoAuth = {value = true, default = true}, -- If players should be automatically authenticated on load
     auscodePlayerPermissions = {value = {
         ["76561199240115313"]={"admin","owner"},
     }, default = {}}, -- List of players and their permissions (by SteamID)
