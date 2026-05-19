@@ -501,7 +501,9 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        local tracker = modules.services.tracker:create(player, 1, false)
+        local v = modules.services.vehicle:getVehicleGroup(tonumber(args[1])).vehicles[tonumber(args[1])]
+        modules.libraries.chat:announce("Test", modules.libraries.table:tostring(v), player.peerId)
+        local tracker = modules.services.tracker:create(v, 1, false)
     end))
 
     self.onCommandCreation:fire()

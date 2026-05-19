@@ -19,7 +19,7 @@ end
 ---@param target Player|Vehicle
 ---@param updateFrequency number
 ---@param useTime boolean
----@return Tracker|nil
+---@return Tracker
 function modules.services.tracker:create(target, updateFrequency, useTime)
     local id = #self.trackers+1
 
@@ -37,9 +37,6 @@ function modules.services.tracker:create(target, updateFrequency, useTime)
         end
         self.vehicleTrackerIndex[target.id] = id
         targetId = target.id
-    else
-        modules.libraries.logging:error("services.tracker:create","Invalid target for tracker: "..target._class)
-        return nil
     end
 
     local tracker = modules.classes.tracker:create(id, target, targetId, updateFrequency, useTime)
@@ -108,12 +105,22 @@ function modules.services.tracker:load()
         self.playerTrackerIndex = loaded.playerTrackerIndex or {}
         self.vehicleTrackerIndex = loaded.vehicleTrackerIndex or {}
         for id, tracker in pairs(loaded.trackers) do
+            modules.libraries.logging:info("e", "%s", modules.libraries.table:tostring(tracker))
             local target = tracker.target
             if tracker.targetType == "Player" then
                 target = modules.services.player:getPlayer(tracker.targetId)
             elseif tracker.targetType == "Vehicle" then
-                target = modules.services.vehicle:getVehicleGroup(tracker.targetId).vehicles[tracker.targetId]
+                local group = modules.services.vehicle:getVehicleGroup(tracker.targetId)
+                if group then
+                    target = group.vehicles[tracker.targetId]
+                else
+                    goto continue
+                end
             end
+            if not target then
+                goto continue
+            end
+
             self.trackers[id] = modules.classes.tracker:create(id, target, tracker.targetId, tracker.updateFrequency, tracker.useTime)
             self.trackerTasks[id] = modules.services.task:create(tracker.updateFrequency, function()
                 self.trackers[id]:update()

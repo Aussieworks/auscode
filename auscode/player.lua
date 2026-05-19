@@ -99,8 +99,9 @@ function auscode.player:_start(safeMode)
 
     self.onItemDropConnection = modules.services.player.onItemDrop:connect(function(player, itemObjectId, item)
         if self.playerDespawnDroppedItems then
-            local task = modules.services.task:create(self.playerDroppedItemDespawnTime, function()
+            local task = modules.services.task:create(self.playerDroppedItemDespawnTime, function(task)
                 server.despawnObject(itemObjectId, true)
+                modules.services.task:remove(task)
             end, false, true)
         end
     end)
@@ -145,8 +146,7 @@ function auscode.player:_start(safeMode)
     -- player map object ui task
     self.playerMapUiTask = modules.services.task:create(1, function(task)
         if not self.playerMapObjects then
-            task:setPaused(true)
-            task:update()
+            modules.services.task:remove(task)
             return
         end
 
