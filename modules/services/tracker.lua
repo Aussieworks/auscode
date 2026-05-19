@@ -105,7 +105,6 @@ function modules.services.tracker:load()
         self.playerTrackerIndex = loaded.playerTrackerIndex or {}
         self.vehicleTrackerIndex = loaded.vehicleTrackerIndex or {}
         for id, tracker in pairs(loaded.trackers) do
-            modules.libraries.logging:info("e", "%s", modules.libraries.table:tostring(tracker))
             local target = tracker.target
             if tracker.targetType == "Player" then
                 target = modules.services.player:getPlayer(tracker.targetId)
