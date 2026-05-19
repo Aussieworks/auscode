@@ -22,6 +22,8 @@ function auscode.player:_init(safeMode)
 
     self.playerPermissionsTag = modules.libraries.settings:getValue("auscodePlayerPermissionsTag", true, {})
 
+    self.playerMapObjects = modules.libraries.settings:getValue("auscodePlayerMapObjects", true, true)
+
     return true
 end
 
@@ -57,6 +59,10 @@ function auscode.player:_start(safeMode)
         local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.8, true, player, "playerUi")
         widget:_remove(player)
         widget:update()
+
+        if self.playerMapObjects then
+            local widget = modules.services.ui:createMapObject("Player", string.format("%s",player.name), modules.classes.widgets.color:create(0,255,0), 0, 1, 0, 0, nil, nil, nil, "playerMapObject"..player.peerId)
+        end
 
         self:toggleUI(player, self.playerDefaultStates.ui)
 
@@ -120,6 +126,23 @@ function auscode.player:_start(safeMode)
             for _, widget in pairs(widgets) do
                 if widget.type == "popupScreen" and widget.name == "playerUi" then
                     widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    widget:update()
+                end
+            end
+        end
+    end, true, false)
+
+    -- player map object ui task
+    self.playerMapUiTask = modules.services.task:create(1, function()
+        local players = modules.services.player:getOnlinePlayers()
+        for _, player in pairs(players) do
+            local widgets = modules.services.ui:getWidgetsByName("playerMapObject"..player.peerId)
+            for _, widget in pairs(widgets) do
+                if widget.type == "mapObject" then
+                    local pos = player:getPos()
+                    local x,y,z = matrix.position(pos)
+                    widget.x = x
+                    widget.z = z
                     widget:update()
                 end
             end

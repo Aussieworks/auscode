@@ -37,6 +37,7 @@ local settings = {
     auscodePlayerPVPEffects = {value = true, default = true}, -- If player pvp effects should be enabled
     auscodePlayerDespawnDroppedItems = {value = true, default = true}, -- If dropped items should despawn
     auscodePlayerDroppedItemDespawnTime = {value = 10, default = 20}, -- Time in seconds for dropped items to despawn
+    auscodePlayerMapObjects = {value = true, default = true}, -- If custom player map objects should be created
     -- Vehicle settings
     auscodeVehicleMapObjects = {value = true, default = true}, -- If custom vehicle map objects should be created
     auscodeVehicleAllowWorkshop = {value = true, default = true}, -- If players should be allowed to spawn workshop vehicles
