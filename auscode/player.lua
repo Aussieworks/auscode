@@ -61,7 +61,10 @@ function auscode.player:_start(safeMode)
         widget:update()
 
         if self.playerMapObjects then
-            local widget = modules.services.ui:createMapObject("Player", string.format("%s",player.name), modules.classes.widgets.color:create(0,255,0), 0, 1, 0, 0, nil, nil, nil, "playerMapObject"..player.peerId)
+            local tracker = modules.services.tracker:create(player, 1, false)
+            local pos = tracker:getPos()
+            local x,y,z = matrix.position(pos)
+            local widget = modules.services.ui:createMapObject(string.format("%s (%s)",player.name, player.peerId), nil, modules.classes.widgets.color:create(0,255,0), 0, 1, x, z, nil, nil, nil, "playerMapObject"..player.peerId)
         end
 
         self:toggleUI(player, self.playerDefaultStates.ui)
@@ -133,17 +136,26 @@ function auscode.player:_start(safeMode)
     end, true, false)
 
     -- player map object ui task
-    self.playerMapUiTask = modules.services.task:create(1, function()
+    self.playerMapUiTask = modules.services.task:create(1, function(task)
+        if not self.playerMapObjects then
+            task:setPaused(true)
+            task:update()
+            return
+        end
+
         local players = modules.services.player:getOnlinePlayers()
         for _, player in pairs(players) do
             local widgets = modules.services.ui:getWidgetsByName("playerMapObject"..player.peerId)
             for _, widget in pairs(widgets) do
                 if widget.type == "mapObject" then
-                    local pos = player:getPos()
-                    local x,y,z = matrix.position(pos)
-                    widget.x = x
-                    widget.z = z
-                    widget:update()
+                    local tracker = modules.services.tracker:getPlayerTracker(player)
+                    if tracker then
+                        local pos = tracker:getPos()
+                        local x,y,z = matrix.position(pos)
+                        widget.x = x
+                        widget.z = z
+                        widget:update()
+                    end
                 end
             end
         end

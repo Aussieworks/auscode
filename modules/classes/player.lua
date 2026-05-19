@@ -135,12 +135,13 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
 
     -- returns the players position in the world
     ---@return table matrix
+    ---@return boolean worked
     function player:getPos()
         local pos, worked = server.getPlayerPos(self.peerId)
         if not worked then
-            return matrix.translation(0,0,0)
+            return matrix.translation(0,0,0), false
         end
-        return pos
+        return pos, worked
     end
 
     -- sets the player seated in a specific vehicle and seat

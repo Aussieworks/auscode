@@ -70,6 +70,12 @@ function auscode.vehicle:_start(safeMode)
     end)
 
     self.vehicleUITask = modules.services.task:create(1, function(task)
+        if not self.mapObjects then
+            task:setPaused(true)
+            task:update()
+            return
+        end
+
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             for _, group in pairs(modules.services.vehicle:getPlayersVehicleGroups(player, true)) do
                 local vehicleUi = {}

