@@ -45,7 +45,7 @@ local settings = {
     auscodeVehicleGroupLimit = {value = 1, default = 1}, -- Maximum number of vehicle groups a player can have
     -- Chat settings
     auscodeChatCustomChat = {value = true, default = true}, -- If custom chat functionality should be enabled
-    auscodeChatMessageLimit = {value = 100, default = 100}, -- Maximum number of chat messages to store
+    auscodeChatMessageLimit = {value = 130, default = 130}, -- Maximum number of chat messages to store
 }
 
 return settings
