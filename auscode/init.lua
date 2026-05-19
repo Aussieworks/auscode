@@ -33,6 +33,8 @@ function auscode:_start()
     end
 
     modules.libraries.chat:announce("AusCode", "Hello from AusCode!")
+
+    modules.services.addon:loadAddons() -- load the addons
 end
 
 function auscode:_error(module, errorType, reason)

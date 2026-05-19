@@ -413,7 +413,11 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("version", {"ver"}, {}, "\n \\ Show AusCode version", function (player, full_message, command, args, hasPerm)
-        modules.libraries.chat:announce("[Command] Version", string.format("AusCode: %s\nModules: %s", auscode.version, modules.version), player.peerId)
+        local addons = {}
+        for addonName, addon in pairs(modules.services.addon:getAddons()) do
+            table.insert(addons, string.format("\n   %s: %s", addonName, addon.version))
+        end
+        modules.libraries.chat:announce("[Command] Version", string.format("AusCode: %s\nModules: %s\nAddons: %s", auscode.version, modules.version, table.concat(addons, "")), player.peerId)
     end))
 
     self:add(modules.services.command:create("rules", {}, {}, "\n \\ Show server rules", function (player, full_message, command, args, hasPerm)
