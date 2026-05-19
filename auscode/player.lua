@@ -79,6 +79,13 @@ function auscode.player:_start(safeMode)
                 modules.services.ui:removeWidget(widget.id)
             end
         end
+        local mapWidgets = modules.services.ui:getWidgetsByName("playerMapObject"..player.peerId)
+        for _, widget in pairs(mapWidgets) do
+            if widget.type == "mapObject" then
+                modules.services.ui:removeWidget(widget.id)
+                modules.services.tracker:destroy(modules.services.tracker:getPlayerTracker(player))
+            end
+        end
 
         local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
         for _, group in pairs(vehicles) do

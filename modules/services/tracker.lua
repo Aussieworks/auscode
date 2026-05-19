@@ -27,13 +27,13 @@ function modules.services.tracker:create(target, updateFrequency, useTime)
 
     if target._class == "Player" then
         if self:getPlayerTracker(target) then
-            return self:getPlayerTracker(target)
+            self:destroy(self:getPlayerTracker(target))
         end
         self.playerTrackerIndex[target.steamId] = id
         targetId = target.steamId
     elseif target._class == "Vehicle" then
         if self:getVehicleTracker(target) then
-            return self:getVehicleTracker(target)
+            self:destroy(self:getVehicleTracker(target))
         end
         self.vehicleTrackerIndex[target.id] = id
         targetId = target.id
@@ -83,6 +83,19 @@ end
 
 function modules.services.tracker:_updateTracker(tracker)
     self.trackers[tracker.id] = tracker
+end
+
+function modules.services.tracker:destroy(tracker)
+    if self.trackers[tracker.id] then
+        self.trackers[tracker.id] = nil
+        modules.services.task:remove(self.trackerTasks[tracker.id])
+        self.trackerTasks[tracker.id] = nil
+        if tracker.target._class == "Player" then
+            self.playerTrackerIndex[tracker.targetId] = nil
+        elseif tracker.target._class == "Vehicle" then
+            self.vehicleTrackerIndex[tracker.targetId] = nil
+        end
+    end
 end
 
 function modules.services.tracker:save()

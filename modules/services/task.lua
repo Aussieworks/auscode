@@ -28,3 +28,7 @@ end
 function modules.services.task:_updateTask(task)
     self.tasks[task.id] = task
 end
+
+function modules.services.task:remove(task)
+    self.tasks[task.id] = nil
+end

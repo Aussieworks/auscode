@@ -501,7 +501,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        
+        local tracker = modules.services.tracker:create(player, 1, false)
     end))
 
     self.onCommandCreation:fire()
