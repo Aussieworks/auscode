@@ -61,6 +61,19 @@ function modules.classes.task:create(id, period, repeating, func, useTime)
         end
     end
 
+    if not task.useTime and task.period == 1 then
+        function task:tick()
+            if self.paused then
+                return
+            end
+
+            self:func()
+            if not self.repeating then
+                self:setPaused(true)
+            end
+        end
+    end
+
     function task:update()
         modules.services.task:_updateTask(self)
     end
