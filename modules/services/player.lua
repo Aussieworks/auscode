@@ -11,6 +11,7 @@ function modules.services.player:initService()
 
     self.players = {}
     self.peerIdIndex = {} -- used to convert peerId to steamId
+    self.onlinePlayersIndex = {} -- used to track which players are currently in-game, maps steamId
 end
 
 
@@ -41,6 +42,7 @@ function modules.services.player:startService()
         player.objectId = nil -- reset the objectId on join, will be set on load
         self.players[tostring(steam_id)] = player -- add the player to the table
         self.peerIdIndex[tostring(peer_id)] = tostring(steam_id) -- map peerId to steamId
+        self.onlinePlayersIndex[tostring(steam_id)] = true -- mark the player as online
         self:_save() -- save the player service
         self.onJoin:fire(player) -- fire the event
     end)
@@ -60,6 +62,7 @@ function modules.services.player:startService()
             player.inGame = false -- set the player as not in-game
             self.onLeave:fire(player) -- fire the event
             self.players[tostring(steam_id)] = player
+            self.onlinePlayersIndex[tostring(steam_id)] = nil -- mark the player as offline
             self:_save() -- save the player service
         end
     end)
@@ -132,9 +135,10 @@ end
 ---@return table<string, Player>
 function modules.services.player:getOnlinePlayers() -- returns a table of players that are currently in-game
     local onlinePlayers = {}
-    for _, player in pairs(self:getPlayers()) do
-        if player.inGame then
-            onlinePlayers[tostring(player.steamId)] = player -- add the player to the table if they are in-game
+    for steamId, _ in pairs(self.onlinePlayersIndex) do
+        local player = self:getPlayer(steamId)
+        if player then
+            onlinePlayers[tostring(steamId)] = player
         end
     end
     return onlinePlayers -- return the list of online players
@@ -223,15 +227,15 @@ end
 
 -- internal function to verify if the players are online
 function modules.services.player:_verifyOnlinePlayers()
-    local onlinePlayers = {}
+    self.onlinePlayersIndex = {}
 
     for _, player in pairs(server.getPlayers()) do
-        onlinePlayers[tostring(player.steam_id)] = true -- mark the player as online
+        self.onlinePlayersIndex[tostring(player.steam_id)] = true -- mark the player as online
         self.peerIdIndex[tostring(player.id)] = tostring(player.steam_id) -- map peerId to steamId
     end
 
     for _, player in pairs(self.players) do
-        player.inGame = onlinePlayers[tostring(player.steamId)] ~= nil -- set inGame based on onlinePlayers
+        player.inGame = self.onlinePlayersIndex[tostring(player.steamId)] ~= nil -- set inGame based on onlinePlayers
         if not player.inGame and modules.addonReason == "load" then
             player.peerId = -1
         elseif not player.inGame and player.peerId ~= -1 then
