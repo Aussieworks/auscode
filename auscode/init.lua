@@ -64,3 +64,12 @@ function auscode:restart(safeMode)
         end
     end
 end
+
+function auscode:restartModule(name, safeMode)
+    if type(self[name]) == "table" and self[name]._class == "ACModule" then
+        self[name]:restart(safeMode)
+        modules.libraries.logging:info("AusCode", "Restarted module: "..self[name].name)
+    else
+        modules.libraries.logging:error("AusCode", "Module not found: "..name)
+    end
+end
