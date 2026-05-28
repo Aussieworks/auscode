@@ -2,6 +2,7 @@
 auscode.player = auscode.classes.module:create("player", {"ChickenMst"}, "player handleing for auscode") -- player related functions
 
 function auscode.player:_init(safeMode)
+    --- settings
     self.playerAutoAuth = modules.libraries.settings:getValue("auscodePlayerAutoAuth", true, true)
 
     self.playerPermissions = modules.libraries.settings:getValue("auscodePlayerPermissions", true, {})
@@ -23,6 +24,8 @@ function auscode.player:_init(safeMode)
     self.playerPermissionsTag = modules.libraries.settings:getValue("auscodePlayerPermissionsTag", true, {})
 
     self.playerMapObjects = modules.libraries.settings:getValue("auscodePlayerMapObjects", true, true)
+
+    self.parties = {} -- table to store player parties
 
     return true
 end
@@ -335,4 +338,15 @@ function auscode.player:getHighestPerm(player)
     end
 
     return topPerm
+end
+
+function auscode.player:createParty(leader)
+    local party = modules.classes.party:create(#self.parties+1, leader)
+    self.parties[party.id] = party
+    return party
+end
+
+function auscode.player:saveParty(party)
+    self.parties[party.id] = party
+    modules.libraries.gsave:saveTable("parties", self.parties)
 end
