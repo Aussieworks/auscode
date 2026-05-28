@@ -43,6 +43,7 @@ local settings = {
     auscodeVehicleAllowWorkshop = {value = true, default = true}, -- If players should be allowed to spawn workshop vehicles
     auscodeVehicleVoxelLimit = {value = 10000, default = 10000}, -- Maximum number of voxels allowed in a vehicle
     auscodeVehicleSubBodyLimit = {value = 10, default = 10}, -- Maximum number of sub-bodies allowed in a vehicle
+    auscodeVehicleTimeLimit = {value = 0, default = 0}, -- Time limit for vehicles spawning in milliseconds, 0 means no time limit
     auscodeVehicleGroupLimit = {value = 1, default = 1}, -- Maximum number of vehicle groups a player can have
     -- Chat settings
     auscodeChatCustomChat = {value = true, default = true}, -- If custom chat functionality should be enabled

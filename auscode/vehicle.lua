@@ -7,6 +7,7 @@ function auscode.vehicle:_init(safeMode)
     self.voxelLimit = modules.libraries.settings:getValue("auscodeVehicleVoxelLimit", true, 10000)
     self.subBodyLimit = modules.libraries.settings:getValue("auscodeVehicleSubBodyLimit", true, 10)
     self.groupLimit = modules.libraries.settings:getValue("auscodeVehicleGroupLimit", true, 1)
+    self.timeLimit = modules.libraries.settings:getValue("auscodeVehicleTimeLimit", true, 0)
     return true
 end
 
@@ -36,6 +37,13 @@ function auscode.vehicle:_start(safeMode)
         if self:getSubBodyCount(group) > self.subBodyLimit then
             local player = group:getOwner()
             player:notify("Vehicle", "Your vehicle/s sub-body count exceeds the limit ("..self:getSubBodyCount(group).."/"..self.subBodyLimit.."). Vehicle despawned.", 6)
+            group:despawn(true)
+            return
+        end
+
+        if self.timeLimit > 0 and group:getLoadingTime() > self.timeLimit then
+            local player = group:getOwner()
+            player:notify("Vehicle", "Your vehicle/s spawn time has exceeded the limit ("..group:getLoadingTime().."/"..self.timeLimit.."ms). Vehicle despawned.", 6)
             group:despawn(true)
             return
         end
