@@ -8,6 +8,7 @@ function auscode.vehicle:_init(safeMode)
     self.subBodyLimit = modules.libraries.settings:getValue("auscodeVehicleSubBodyLimit", true, 10)
     self.groupLimit = modules.libraries.settings:getValue("auscodeVehicleGroupLimit", true, 1)
     self.timeLimit = modules.libraries.settings:getValue("auscodeVehicleTimeLimit", true, 0)
+    self.limitBypassPermissions = modules.libraries.settings:getValue("auscodeVehicleBypassChecksPermissions", true, {"admin","owner"})
     return true
 end
 
@@ -26,36 +27,46 @@ function auscode.vehicle:_start(safeMode)
     self.onGroupLoadConnection = modules.services.vehicle.onGroupLoad:connect(function(group)
         group:setEditable(not group:getOwner():getExtra("as"))
         group:setInvulnerable(not group:getOwner():getExtra("pvp"))
+        local skipChecks = false
 
-        if self:getVoxelCount(group) > self.voxelLimit then
-            local player = group:getOwner()
-            player:notify("Vehicle", "Your vehicle/s voxel count exceeds the limit ("..self:getVoxelCount(group).."/"..self.voxelLimit.."). Vehicle despawned.", 6)
-            group:despawn(true)
-            return
-        end
-
-        if self:getSubBodyCount(group) > self.subBodyLimit then
-            local player = group:getOwner()
-            player:notify("Vehicle", "Your vehicle/s sub-body count exceeds the limit ("..self:getSubBodyCount(group).."/"..self.subBodyLimit.."). Vehicle despawned.", 6)
-            group:despawn(true)
-            return
-        end
-
-        if self.timeLimit > 0 and group:getLoadingTime() > self.timeLimit then
-            local player = group:getOwner()
-            player:notify("Vehicle", "Your vehicle/s spawn time has exceeded the limit ("..group:getLoadingTime().."/"..self.timeLimit.."ms). Vehicle despawned.", 6)
-            group:despawn(true)
-            return
-        end
-
-        while count(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true)) > self.groupLimit do
-            local oldestGroup = self:getOldestGroup(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true))
-            if oldestGroup then
-                local player = group:getOwner()
-                player:notify("Vehicle", "You have exceeded the maximum number of vehicle groups ("..self.groupLimit.."). Oldest vehicle group despawned.", 1)
-                oldestGroup:despawn(true)
-            else
+        for _, perm in pairs(self.limitBypassPermissions) do
+            if group:getOwner() and group:getOwner():hasPerm(perm) then
+                skipChecks = true
                 break
+            end
+        end
+
+        if not skipChecks then
+            if self:getVoxelCount(group) > self.voxelLimit then
+                local player = group:getOwner()
+                player:notify("Vehicle", "Your vehicle/s voxel count exceeds the limit ("..self:getVoxelCount(group).."/"..self.voxelLimit.."). Vehicle despawned.", 6)
+                group:despawn(true)
+                return
+            end
+
+            if self:getSubBodyCount(group) > self.subBodyLimit then
+                local player = group:getOwner()
+                player:notify("Vehicle", "Your vehicle/s sub-body count exceeds the limit ("..self:getSubBodyCount(group).."/"..self.subBodyLimit.."). Vehicle despawned.", 6)
+                group:despawn(true)
+                return
+            end
+
+            if self.timeLimit > 0 and group:getLoadingTime() > self.timeLimit then
+                local player = group:getOwner()
+                player:notify("Vehicle", "Your vehicle/s spawn time has exceeded the limit ("..group:getLoadingTime().."/"..self.timeLimit.."ms). Vehicle despawned.", 6)
+                group:despawn(true)
+                return
+            end
+
+            while count(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true)) > self.groupLimit do
+                local oldestGroup = self:getOldestGroup(modules.services.vehicle:getPlayersVehicleGroups(group:getOwner(), true))
+                if oldestGroup then
+                    local player = group:getOwner()
+                    player:notify("Vehicle", "You have exceeded the maximum number of vehicle groups ("..self.groupLimit.."). Oldest vehicle group despawned.", 1)
+                    oldestGroup:despawn(true)
+                else
+                    break
+                end
             end
         end
 

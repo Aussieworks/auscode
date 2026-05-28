@@ -45,6 +45,7 @@ local settings = {
     auscodeVehicleSubBodyLimit = {value = 10, default = 10}, -- Maximum number of sub-bodies allowed in a vehicle
     auscodeVehicleTimeLimit = {value = 0, default = 0}, -- Time limit for vehicles spawning in milliseconds, 0 means no time limit
     auscodeVehicleGroupLimit = {value = 1, default = 1}, -- Maximum number of vehicle groups a player can have
+    auscodeVehicleBypassChecksPermissions = {value = {"admin","owner"}, default = {"admin","owner"}}, -- Permissions that allow players to bypass vehicle limits
     -- Chat settings
     auscodeChatCustomChat = {value = true, default = true}, -- If custom chat functionality should be enabled
     auscodeChatMessageLimit = {value = 130, default = 130}, -- Maximum number of chat messages to store
