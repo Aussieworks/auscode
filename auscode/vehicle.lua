@@ -58,7 +58,7 @@ function auscode.vehicle:_start(safeMode)
             end
         end
 
-        modules.libraries.chat:announce("[Vehicle] Spawn", string.format("%s Spawned vehicle group: %s (Voxels: %s, Sub-Bodies: %s)",group:getOwner().name,group.groupId,self:getVoxelCount(group),self:getSubBodyCount(group)), -1)
+        modules.libraries.chat:announce("[Vehicle] Spawn", string.format("%s Spawned vehicle group: %s (Voxels: %s, Sub-Bodies: %s Time: %sms)",group:getOwner().name,group.groupId,self:getVoxelCount(group),self:getSubBodyCount(group),group:getLoadingTime()), -1)
     end)
 
     self.onGroupDespawnConnection = modules.services.vehicle.onGroupDespawn:connect(function(group)

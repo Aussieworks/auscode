@@ -5,7 +5,7 @@ modules.classes.vehicleGroup = {} -- table of vehicle functions
 ---@param spawnTime number|nil
 ---@param loaded boolean|nil
 ---@return VehicleGroup
-function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded, despawned)
+function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loadedTime, loaded, despawned)
     ---@class VehicleGroup
     local vehicleGroup = {
         _class = "VehicleGroup",
@@ -13,6 +13,7 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded,
         vehicles = {}, ---@type Vehicle[]
         ownerId = owner and owner.steamId,
         spawnTime = spawnTime or server.getTimeMillisec(),
+        loadedTime = loadedTime or server.getTimeMillisec(),
         onDespawn = modules.libraries.event:create(),
         onLoaded = modules.libraries.event:create(),
         isLoaded = loaded or false,
@@ -130,6 +131,14 @@ function modules.classes.vehicleGroup:create(group_id, owner, spawnTime, loaded,
             if not vehicle.isDespawned then
                 vehicle:resetState()
             end
+        end
+    end
+
+    function vehicleGroup:getLoadingTime()
+        if self.isLoaded then
+            return self.loadedTime - self.spawnTime
+        else
+            return server.getTimeMillisec() - self.spawnTime
         end
     end
 

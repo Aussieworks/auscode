@@ -24,7 +24,7 @@ function modules.services.vehicle:startService()
         local vGroup = self.loadingVehicles[group_id]
 
         if not vGroup then
-            vGroup = modules.classes.vehicleGroup:create(group_id, modules.services.player:getPlayerByPeer(peer_id))
+            vGroup = modules.classes.vehicleGroup:create(group_id, modules.services.player:getPlayerByPeer(peer_id), server.getTimeMillisec())
         end
 
         if not vGroup.vehicles[vehicle_id] then
@@ -58,6 +58,7 @@ function modules.services.vehicle:startService()
 
         if loaded and not vGroup.isLoaded then
             modules.libraries.logging:debug("onVehicleLoad", "Vehicle group loaded with id: '%s'", vGroup.groupId)
+            vGroup.loadedTime = server.getTimeMillisec()
             vGroup:loaded()
             self.loadedVehicles[tostring(vGroup.groupId)] = vGroup
             self.loadingVehicles[tostring(vGroup.groupId)] = nil
@@ -207,7 +208,7 @@ function modules.services.vehicle:_load()
     if service.loadedVehicles then
         local rebuilt = {} -- table to rebuild loading vehicles
         for _,vGroup in pairs(service.loadedVehicles) do
-            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.ownerId), vGroup.spawnTime, vGroup.isLoaded)
+            local rebuiltGroup = modules.classes.vehicleGroup:create(vGroup.groupId, modules.services.player:getPlayer(vGroup.ownerId), vGroup.spawnTime, vGroup.loadedTime, vGroup.isLoaded)
             for _, vehicle in pairs(vGroup.vehicles) do
                 local rebuiltVehicle = modules.classes.vehicle:create(vehicle.id, vGroup.groupId, vehicle.isLoaded, vehicle.data, vehicle.info)
                 rebuiltGroup:addVehicle(rebuiltVehicle)
