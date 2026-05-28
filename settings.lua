@@ -49,6 +49,8 @@ local settings = {
     -- Chat settings
     auscodeChatCustomChat = {value = true, default = true}, -- If custom chat functionality should be enabled
     auscodeChatMessageLimit = {value = 130, default = 130}, -- Maximum number of chat messages to store
+    auscodeChatHiddenWords = {value = {}, default = {}}, -- List of words to hide in chat messages eg {"badword1", "badword2"}, requires auscodeChatCustomChat to be true
+    auscodeChatHiddenWordReplacement = {value = "*", default = "*"}, -- Character to replace hidden words with
 }
 
 return settings

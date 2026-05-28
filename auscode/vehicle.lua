@@ -88,6 +88,7 @@ function auscode.vehicle:_start(safeMode)
         end
     end)
 
+    server.setGameSetting("map_show_vehicles", not self.mapObjects)
     self.vehicleUITask = modules.services.task:create(1, function(task)
         if not self.mapObjects then
             task:setPaused(true)

@@ -147,6 +147,7 @@ function auscode.player:_start(safeMode)
     end, true, false)
 
     -- player map object ui task
+    server.setGameSetting("map_show_players", not self.playerMapObjects)
     self.playerMapUiTask = modules.services.task:create(1, function(task)
         if not self.playerMapObjects then
             modules.services.task:remove(task)

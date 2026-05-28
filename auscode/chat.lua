@@ -11,6 +11,8 @@ function auscode.chat:_init()
         table.insert(self.messages, {title = "", message = "", target = -1})
     end
     self.chatCustomChat = modules.libraries.settings:getValue("auscodeChatCustomChat", true, true) -- if custom chat functionality should be enabled
+    self.hiddenWords = modules.libraries.settings:getValue("auscodeChatHiddenWords", true, {}) -- list of words to hide in chat messages eg {"badword1", "badword2"}
+    self.hiddenWordReplacement = modules.libraries.settings:getValue("auscodeChatHiddenWordReplacement", true, "*") -- character to replace hidden words with
     return true
 end
 
@@ -20,6 +22,7 @@ function auscode.chat:_start()
         if player then
             local tag = auscode.player:getPermTag(auscode.player:getHighestPerm(player))
             local name = string.format("%s %s", tag, player.name)
+            message = self:replaceHiddenWords(message, self.hiddenWordReplacement) -- replace hidden words with the specified replacement
             table.insert(self.messages, {title = name, message = message, target = -1}) -- add the message to the messages table
             while count(self.messages) > self.chatMaxMessages do
                 table.remove(self.messages, 1) -- remove the oldest message if the limit is exceeded
@@ -72,4 +75,19 @@ function auscode.chat:_send()
             modules.libraries.chat:announce(message.title, message.message, message.target, false)
         end
     end
+end
+
+function auscode.chat:replaceHiddenWords(message, replacement)
+    for _, word in pairs(self.hiddenWords) do
+        for i=1, #word do
+            local startIndex, endIndex = string.find(message:lower(), word:lower(), i, true)
+            if startIndex then
+                message = message:sub(1, startIndex - 1) .. replacement:rep(endIndex - startIndex + 1) .. message:sub(endIndex + 1)
+                i = endIndex + 1
+            else
+                break
+            end
+        end
+    end
+    return message
 end
