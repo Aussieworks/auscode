@@ -520,16 +520,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        if args[1] == "d" then
-            local widgets = modules.services.ui:getPlayersWidgets(player)
-            for _, widget in pairs(widgets) do
-                if widget.type == "popupScreen" and widget.name == "playerUi" then
-                    modules.services.ui:removeWidget(widget.id)
-                end
-            end
-        elseif args[1] == "c" then
-            local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.77, true, player, "playerUi")
-        end
+
     end))
 
     self.onCommandCreation:fire()

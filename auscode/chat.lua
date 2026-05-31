@@ -13,6 +13,9 @@ function auscode.chat:_init()
     self.chatCustomChat = modules.libraries.settings:getValue("auscodeChatCustomChat", true, true) -- if custom chat functionality should be enabled
     self.hiddenWords = modules.libraries.settings:getValue("auscodeChatHiddenWords", true, {}) -- list of words to hide in chat messages eg {"badword1", "badword2"}
     self.hiddenWordReplacement = modules.libraries.settings:getValue("auscodeChatHiddenWordReplacement", true, "*") -- character to replace hidden words with
+    self.tips = modules.libraries.settings:getValue("auscodeChatTips", true, {}) -- list of tips to display in chat
+    self.tipFrequency = modules.libraries.settings:getValue("auscodeChatTipFrequency", true, 300) -- time in seconds between displaying tips in chat
+    self.tipStep = 0 -- current tip index
     return true
 end
 
@@ -49,6 +52,25 @@ function auscode.chat:_start()
     if not self.chatCustomChat then
         self.sendChatTask:setPaused(true) -- pause the task until we have messages to send
         self.sendChatTask:update() -- update the task to set the initial time
+    end
+
+    self.tipTask = modules.services.task:create(self.tipFrequency, function()
+        if count(modules.services.player:getOnlinePlayers()) == 0 then
+            return -- don't show tips if there are no players online
+        end
+
+        if #self.tips > 0 then
+            local tip = self.tips[self.tipStep + 1]
+            if tip then
+                modules.libraries.chat:announce("[Chat] Tip", tip, -1)
+                self.tipStep = (self.tipStep + 1) % #self.tips
+            end
+        end
+    end, true, true)
+
+    if self.tipFrequency == 0 then
+        self.tipTask:setPaused(true) -- unpause the task to start showing tips
+        self.tipTask:update() -- update the task to set the initial time
     end
 
     return true

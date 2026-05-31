@@ -51,6 +51,8 @@ local settings = {
     auscodeChatMessageLimit = {value = 130, default = 130}, -- Maximum number of chat messages to store
     auscodeChatHiddenWords = {value = {}, default = {}}, -- List of words to hide in chat messages eg {"badword1", "badword2"}, requires auscodeChatCustomChat to be true
     auscodeChatHiddenWordReplacement = {value = "*", default = "*"}, -- Character to replace hidden words with
+    auscodeChatTips = {value = {}, default = {}}, -- List of tips to display in chat eg: {"Tip 1", "Tip 2"}
+    auscodeChatTipFrequency = {value = 0, default = 300}, -- Time in seconds between displaying tips in chat, 0 is off
 }
 
 return settings
