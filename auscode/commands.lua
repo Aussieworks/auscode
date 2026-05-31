@@ -266,7 +266,7 @@ function auscode.commands:_createCommands()
         player:notify("TPV", "Teleported to vehicle group "..group.groupId, 5)
     end))
 
-    self:add(modules.services.command:create("tvp", {}, {}, "{groupId}\n \\ Teleport vehicle group to you", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("tvp", {"bring", "bringvehicle", "bringv", "bv"}, {}, "{groupId}\n \\ Teleport vehicle group to you", function (player, full_message, command, args, hasPerm)
         if not args[1] or type(tonumber(args[1])) ~= "number" then
             player:notify("[Command] Invalid usage", "Usage: ?tvp {groupId}", 6)
             return
@@ -382,6 +382,25 @@ function auscode.commands:_createCommands()
         end
 
         player:setSeated(firstVehicle.id)
+    end))
+
+    self:add(modules.services.command:create("vehicles", {"v", "vs"}, {}, "\n \\ List your vehicles", function (player, full_message, command, args, hasPerm)
+        local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
+        if count(vehicles) > 0 then
+            local infoList = {}
+            for _, group in pairs(vehicles) do
+                local vehicleInfo = string.format("Group ID: %s\nVoxel Count: %s\nSub-body Count: %s\nLoading Time: %sms",
+                    group.groupId,
+                    auscode.vehicle:getVoxelCount(group),
+                    auscode.vehicle:getSubBodyCount(group),
+                    group:getLoadingTime()
+                )
+                table.insert(infoList, vehicleInfo)
+            end
+            modules.libraries.chat:announce("[Command] Vehicles:", table.concat(infoList, "\n\n"), player.peerId)
+        else
+            player:notify("Vehicles", "You have no vehicles.", 6)
+        end
     end))
 
     self:add(modules.services.command:create("warn", {"w"}, {"owner", "admin", "mod"}, "{peerId} {reason} \n \\ Warn a player", function (player, full_message, command, args, hasPerm)
@@ -500,9 +519,17 @@ function auscode.commands:_createCommands()
         modules.libraries.chat:announce("[Command] VehicleInfo:", info, player.peerId)
     end))
 
-    self:add(modules.services.command:create("test", {}, {}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        modules.libraries.settings:setValue("auscodeChatCustomChat", false)
-        auscode:restartModule("chat",false)
+    self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
+        if args[1] == "d" then
+            local widgets = modules.services.ui:getPlayersWidgets(player)
+            for _, widget in pairs(widgets) do
+                if widget.type == "popupScreen" and widget.name == "playerUi" then
+                    modules.services.ui:removeWidget(widget.id)
+                end
+            end
+        elseif args[1] == "c" then
+            local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.77, true, player, "playerUi")
+        end
     end))
 
     self.onCommandCreation:fire()

@@ -45,6 +45,12 @@ function auscode.player:_start(safeMode)
         self:togglePVP(player, self.playerDefaultStates.pvp)
         self:toggleUI(player, self.playerDefaultStates.ui)
         modules.libraries.chat:announce("[Player] Join", string.format("%s (%s) has joined the server.", player.name, player.peerId))
+
+        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.77, true, player, "playerUi")
+        widget:_remove(player)
+        widget:update()
+        self:toggleUI(player, self.playerDefaultStates.ui)
+
         self:giveDefaultItems(player)
     end)
 
@@ -59,7 +65,7 @@ function auscode.player:_start(safeMode)
             end
         end
 
-        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.8, true, player, "playerUi")
+        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.77, true, player, "playerUi")
         widget:_remove(player)
         widget:update()
 
@@ -139,7 +145,12 @@ function auscode.player:_start(safeMode)
             local widgets = modules.services.ui:getPlayersWidgets(player)
             for _, widget in pairs(widgets) do
                 if widget.type == "popupScreen" and widget.name == "playerUi" then
-                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"))
+                    local groups = table.concat(player:getExtra("groups") or {}, ",")
+                    if #groups > 14 then
+                        groups = string.sub(groups, 1, 11) .. "..."
+                    end
+                    if groups == "" then groups = "\n" end
+                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s\n[Vehicles]:\n%s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"), groups)
                     widget:update()
                 end
             end

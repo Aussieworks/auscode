@@ -77,6 +77,11 @@ function auscode.vehicle:_start(safeMode)
             end
         end
 
+        local owner = group:getOwner()
+        local groups = owner:getExtra("groups") or {}
+        table.insert(groups, group.groupId)
+        owner:setExtra("groups", groups)
+        owner:save()
         modules.libraries.chat:announce("[Vehicle] Spawn", string.format("%s Spawned vehicle group: %s (Voxels: %s, Sub-Bodies: %s Time: %sms)",group:getOwner().name,group.groupId,self:getVoxelCount(group),self:getSubBodyCount(group),group:getLoadingTime()), -1)
     end)
 
@@ -86,6 +91,17 @@ function auscode.vehicle:_start(safeMode)
         for _, widget in pairs(widgets) do
             modules.services.ui:removeWidget(widget.id)
         end
+
+        local owner = group:getOwner()
+        local groups = owner:getExtra("groups") or {}
+        for i, groupId in pairs(groups) do
+            if groupId == group.groupId then
+                table.remove(groups, i)
+                break
+            end
+        end
+        owner:setExtra("groups", groups)
+        owner:save()
     end)
 
     server.setGameSetting("map_show_vehicles", not self.mapObjects)
