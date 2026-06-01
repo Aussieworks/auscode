@@ -388,7 +388,7 @@ function auscode.commands:_createCommands()
         player:setSeated(firstVehicle.id)
     end))
 
-    self:add(modules.services.command:create("vehicle", {"v"}, {}, "[groupId]\n \\ List your vehicles or info on a vehicle", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("vehicle", {"v","vehicles"}, {}, "[groupId]\n \\ List your vehicles or info on a vehicle", function (player, full_message, command, args, hasPerm)
         if args[1] then
             local group = modules.services.vehicle:getGroup(args[1], true)
 
@@ -517,29 +517,6 @@ function auscode.commands:_createCommands()
         else
             player:notify("Tool", "Failed to give item: "..args[1], 6)
         end
-    end))
-
-    self:add(modules.services.command:create("vehicleinfo", {"vinfo", "vi"}, {}, "{groupId} \n \\ Get vehicle group info", function (player, full_message, command, args, hasPerm)
-        if not args[1] then
-            player:notify("[Command] Invalid usage", "Usage: ?vehicleinfo {groupId}", 6)
-            return
-        end
-
-        local group = modules.services.vehicle:getGroup(args[1], true)
-
-        if not group then
-            player:notify("VehicleInfo", "Vehicle group: "..args[1].." not found.", 1)
-            return
-        end
-
-        local info = string.format("Group ID: %s\nOwner: %s\nVoxel Count: %s\nSub-body Count: %s",
-            group.groupId,
-            group:getOwner().name,
-            auscode.vehicle:getVoxelCount(group),
-            auscode.vehicle:getSubBodyCount(group)
-        )
-
-        modules.libraries.chat:announce("[Command] VehicleInfo:", info, player.peerId)
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
