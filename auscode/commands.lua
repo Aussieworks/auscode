@@ -64,18 +64,21 @@ function auscode.commands:_createCommands()
         modules.libraries.chat:announce("[Command] Help:", string.format("Commands Usage: [optional] {required}\n%s",table.concat(availableCommands, "\n")), player.peerId)
     end))
 
-    self:add(modules.services.command:create("playerinfo", {"pi", "pinfo"}, {"owner", "admin", "mod"}, "{peerId|'all'} \n \\ Get players info", function(player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("playerinfo", {"pi", "pinfo"}, {"owner", "admin", "mod"}, "{peerId|steamId|'all'} \n \\ Get players info", function(player, full_message, command, args, hasPerm)
         if not hasPerm then
             return
         end
 
         if not args[1] or args[1] ~= "all" and type(tonumber(args[1])) ~= "number" then
-            player:notify("[Command] Invalid usage", "Usage: ?playerinfo {peerId|'all'}", 1)
+            player:notify("[Command] Invalid usage", "Usage: ?playerinfo {peerId|steamId|'all'}", 1)
             return
         end
 
         if args[1] ~= "all" then
             local targetPlayer = modules.services.player:getPlayerByPeer(args[1])
+            if #args[1] > 3 then
+                targetPlayer = modules.services.player:getPlayer(args[1]) or targetPlayer
+            end
 
             if targetPlayer == nil then
                 player:notify("[Command] Player Info", string.format("Player: %s not found.", args[1]), 6)
@@ -93,7 +96,7 @@ function auscode.commands:_createCommands()
 
             local warns = targetPlayer:getExtra("warnings") or {}
 
-            local info = string.format("Name: %s\nPeer ID: %s\nSteam ID: %s\nOnline: %s\nAnti-Steal: %s\nPVP: %s\nPermissions: %s\nWarns:%s",
+            local info = string.format("Name: %s\nPeer ID: %s\nSteam ID: %s\nOnline: %s\nAnti-Steal: %s\nPVP: %s\nPermissions: %s\nWarns:%s\nVehicle Groups: %s",
                 targetPlayer.name,
                 targetPlayer.peerId,
                 targetPlayer.steamId,
@@ -101,7 +104,8 @@ function auscode.commands:_createCommands()
                 tostring(targetPlayer:getExtra("as")),
                 tostring(targetPlayer:getExtra("pvp")),
                 table.concat(textPerms, ", "),
-                table.concat(warns, ", ")
+                table.concat(warns, ", "),
+                table.concat(targetPlayer:getExtra("groups") or {}, ", ")
             )
 
             modules.libraries.chat:announce("[Command] PlayerInfo:", info, player.peerId)
@@ -384,7 +388,26 @@ function auscode.commands:_createCommands()
         player:setSeated(firstVehicle.id)
     end))
 
-    self:add(modules.services.command:create("vehicles", {"v", "vs"}, {}, "\n \\ List your vehicles", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("vehicle", {"v"}, {}, "[groupId]\n \\ List your vehicles or info on a vehicle", function (player, full_message, command, args, hasPerm)
+        if args[1] then
+            local group = modules.services.vehicle:getGroup(args[1], true)
+
+            if not group then
+                player:notify("Vehicles", "Vehicle group not found.", 1)
+                return
+            end
+
+            local vehicleInfo = string.format("Group ID: %s\nOwner: %s\nVoxel Count: %s\nSub-body Count: %s\nLoading Time: %sms",
+                    group.groupId,
+                    group:getOwner().name.." ("..group:getOwner().peerId..")",
+                    auscode.vehicle:getVoxelCount(group),
+                    auscode.vehicle:getSubBodyCount(group),
+                    group:getLoadingTime()
+                )
+            modules.libraries.chat:announce("[Command] Vehicle:", vehicleInfo, player.peerId)
+            return
+        end
+
         local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
         if count(vehicles) > 0 then
             local infoList = {}
