@@ -9,3 +9,4 @@ require "modules.libraries.gsave" -- load the gsave library
 require "modules.libraries.callbacks" -- load the callbacks library
 require "modules.libraries.json" -- load the json library
 require "modules.libraries.table" -- load the table library
+require "modules.libraries.matrix" -- load the matrix library

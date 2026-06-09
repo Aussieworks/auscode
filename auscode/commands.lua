@@ -297,18 +297,24 @@ function auscode.commands:_createCommands()
             local worked = false
             if #args > 0 and vehicles[tostring(args[1])] then
                 for _, vehicle in pairs(vehicles[tostring(args[1])].vehicles) do
-                    local pos = vehicle:getPos()
-                    local x,y,z = matrix.position(pos)
-                    pos = matrix.translation(x, y, z)
+                    local vpos = vehicle:getPos()
+                    local a,e,r = modules.libraries.matrix:toOrientation(vpos)
+                    local pos = modules.libraries.matrix:fromOrientation(a, e, 0)
+                    pos[13] = vpos[13]
+                    pos[14] = vpos[14]+0.9
+                    pos[15] = vpos[15]
                     vehicle:setPos(pos)
                 end
                 worked = true
             elseif #args == 0 then
                 for _, group in pairs(vehicles) do
                     for _, vehicle in pairs(group.vehicles) do
-                        local pos = vehicle:getPos()
-                        local x,y,z = matrix.position(pos)
-                        pos = matrix.translation(x, y, z)
+                        local vpos = vehicle:getPos()
+                        local a,e,r = modules.libraries.matrix:toOrientation(vpos)
+                        local pos = modules.libraries.matrix:fromOrientation(a, e, 0)
+                        pos[13] = vpos[13]
+                        pos[14] = vpos[14]+0.9
+                        pos[15] = vpos[15]
                         vehicle:setPos(pos)
                     end
                     worked = true
@@ -520,7 +526,20 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-
+        local g = modules.services.vehicle:getGroup(args[1], true)
+        local v = {}
+        for _, vehicle in pairs(g.vehicles) do
+            v = vehicle
+            break
+        end
+        local yaw, pitch, roll = modules.libraries.matrix:toOrientation(v:getPos())
+        modules.libraries.chat:announce("Test Command", string.format("Yaw: %.5f, Pitch: %.5f, Roll: %.5f", yaw or "nil", pitch or "nil", roll or "nil"), player.peerId)
+        local pos = modules.libraries.matrix:fromOrientation(yaw, pitch, 0)
+        local vpos = v:getPos()
+        pos[13] = vpos[13]
+        pos[14] = vpos[14]+0.9
+        pos[15] = vpos[15]
+        v:setPos(pos)
     end))
 
     self.onCommandCreation:fire()

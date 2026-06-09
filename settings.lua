@@ -14,7 +14,7 @@ local settings = {
     auscodePlayerAutoAuth = {value = true, default = true}, -- If players should be automatically authenticated on load
     auscodePlayerPermissions = {value = {
         ["76561199240115313"]={"admin","owner"},
-    }, default = {}}, -- List of players and their permissions (by SteamID)
+    }, default = {}}, -- List of players and their permissions (by SteamID) eg {["76561199240115313"]={"admin","owner"}, ["76561199240115314"]={"mod"}}
     auscodePlayerDefaultPermissions = {value = {"player"}, default = {"player"}}, -- Default permissions for players not listed in auscodePlayerPermissions
     auscodePlayerPermissionsWeight = {value = {
         ["owner"]=4,
