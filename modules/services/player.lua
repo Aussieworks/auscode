@@ -18,6 +18,10 @@ end
 function modules.services.player:startService()
     if modules.addonReason ~= "create" then
         self:_load() -- load the player service on creationTime
+    else
+        self:_verifyPlayerClasses()
+        self:_verifyOnlinePlayers()
+        self:_save()
     end
 
     modules.libraries.callbacks:connect("onPlayerJoin", function(steam_id, name, peer_id, is_admin, is_auth)
@@ -192,31 +196,7 @@ function modules.services.player:_load()
 
     self:_verifyOnlinePlayers() -- verify online players after loading
 
-    for _, player in pairs(server.getPlayers()) do
-        if player.steam_id == 0 then
-            modules.libraries.logging:debug("services.player:_load", "Skiped loading player: '%s'", player.name)
-            goto continue -- skip players with steam_id 0
-        end
-        local existingPlayer = self:getPlayer(tostring(player.steam_id))
-        if not existingPlayer then
-            local newPlayer = modules.classes.player:create(
-                player.id,
-                player.steam_id,
-                player.name,
-                player.admin,
-                player.auth,
-                player.object_id
-            )
-            if newPlayer then
-                self.players[tostring(player.steam_id)] = newPlayer -- add the player to the table
-                modules.libraries.logging:debug("services.player:_load", "Created player class for player: '%s' with steam_id: '%s'", newPlayer.name, newPlayer.steamId)
-                modules.services.player:_save() -- save the player service
-            else
-                modules.libraries.logging:warning("services.player:_load", "Failed to create player class for steam_id: '%s'", player.steam_id)
-            end
-        end
-        ::continue::
-    end
+    self:_verifyPlayerClasses() -- verify player classes after loading
     modules.services.player:_save() -- save the player service after loading
 end
 
@@ -241,6 +221,34 @@ function modules.services.player:_verifyOnlinePlayers()
         elseif not player.inGame and player.peerId ~= -1 then
             self.peerIdIndex[tostring(player.peerId)] = tostring(player.steamId) -- add offline but not old save players to peerIdIndex
         end
+    end
+end
+
+function modules.services.player:_verifyPlayerClasses()
+    for _, player in pairs(server.getPlayers()) do
+        if player.steam_id == 0 then
+            modules.libraries.logging:debug("services.player:_verifyPlayerClasses", "Skiped loading player: '%s'", player.name)
+            goto continue -- skip players with steam_id 0
+        end
+        local existingPlayer = self:getPlayer(tostring(player.steam_id))
+        if not existingPlayer then
+            local newPlayer = modules.classes.player:create(
+                player.id,
+                player.steam_id,
+                player.name,
+                player.admin,
+                player.auth,
+                player.object_id
+            )
+            if newPlayer then
+                self.players[tostring(player.steam_id)] = newPlayer -- add the player to the table
+                modules.libraries.logging:debug("services.player:_verifyPlayerClasses", "Created player class for player: '%s' with steam_id: '%s'", newPlayer.name, newPlayer.steamId)
+                modules.services.player:_save() -- save the player service
+            else
+                modules.libraries.logging:warning("services.player:_verifyPlayerClasses", "Failed to create player class for steam_id: '%s'", player.steam_id)
+            end
+        end
+        ::continue::
     end
 end
 

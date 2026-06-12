@@ -221,8 +221,13 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("auth", {"a"}, {}, "\n \\ Auth", function (player, full_message, command, args, hasPerm)
-        player:setAuth(true)
-        player:notify("Auth", "You are now authenticated.", 5)
+        if not player.auth then
+            player:setAuth(true)
+            player:notify("Auth", "You are now authenticated.", 5)
+            player:save()
+        else
+            player:notify("Auth", "You are already authenticated.", 6)
+        end
     end))
 
     self:add(modules.services.command:create("tpp", {}, {}, "{peerId}\n \\ Teleport to player", function (player, full_message, command, args, hasPerm)
@@ -526,20 +531,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        local g = modules.services.vehicle:getGroup(args[1], true)
-        local v = {}
-        for _, vehicle in pairs(g.vehicles) do
-            v = vehicle
-            break
-        end
-        local yaw, pitch, roll = modules.libraries.matrix:toOrientation(v:getPos())
-        modules.libraries.chat:announce("Test Command", string.format("Yaw: %.5f, Pitch: %.5f, Roll: %.5f", yaw or "nil", pitch or "nil", roll or "nil"), player.peerId)
-        local pos = modules.libraries.matrix:fromOrientation(yaw, pitch, 0)
-        local vpos = v:getPos()
-        pos[13] = vpos[13]
-        pos[14] = vpos[14]+0.9
-        pos[15] = vpos[15]
-        v:setPos(pos)
+
     end))
 
     self.onCommandCreation:fire()

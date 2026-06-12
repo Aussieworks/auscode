@@ -183,6 +183,10 @@ function auscode.player:_start(safeMode)
         end
     end, true, false)
 
+    for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+        self:_verifyUi(player)
+    end
+
     return true
 end
 
@@ -361,4 +365,36 @@ end
 function auscode.player:saveParty(party)
     self.parties[party.id] = party
     modules.libraries.gsave:saveTable("parties", self.parties)
+end
+
+function auscode.player:_verifyUi(player)
+    local widgets = modules.services.ui:getPlayersWidgets(player)
+    local hasPopup = false
+    for _, widget in pairs(widgets) do
+        if widget.type == "popupScreen" and widget.name == "playerUi" then
+            hasPopup = true
+            break
+        end
+    end
+
+    if not hasPopup then
+        local widget = modules.services.ui:createPopupScreen("Loading", -0.9, 0.77, true, player, "playerUi")
+        widget:_remove(player)
+        widget:update()
+        self:toggleUI(player, self.playerDefaultStates.ui)
+    end
+
+    if not self.playerMapObjects then return end -- if player map objects are disabled, skip the rest of the function
+
+    -- check map object
+    local widgets = modules.services.ui:getWidgetsByName("playerMapObject"..player.peerId)
+    if count(widgets) == 0 then
+        local tracker = modules.services.tracker:getPlayerTracker(player)
+        if not tracker then
+            tracker = modules.services.tracker:create(player, 1, false)
+        end
+        local pos = tracker:getPos()
+        local x,y,z = matrix.position(pos)
+        table.insert(widgets, modules.services.ui:createMapObject(string.format("%s (%s)",player.name, player.peerId), nil, modules.classes.widgets.color:create(0,255,0), 0, 1, x, z, nil, nil, nil, "playerMapObject"..player.peerId))
+    end
 end
