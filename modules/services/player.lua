@@ -210,8 +210,10 @@ function modules.services.player:_verifyOnlinePlayers()
     self.onlinePlayersIndex = {}
 
     for _, player in pairs(server.getPlayers()) do
-        self.onlinePlayersIndex[tostring(player.steam_id)] = true -- mark the player as online
-        self.peerIdIndex[tostring(player.id)] = tostring(player.steam_id) -- map peerId to steamId
+        if not player.steam_id == 0 then -- skip adding server
+            self.onlinePlayersIndex[tostring(player.steam_id)] = true -- mark the player as online
+            self.peerIdIndex[tostring(player.id)] = tostring(player.steam_id) -- map peerId to steamId
+        end
     end
 
     for _, player in pairs(self.players) do
