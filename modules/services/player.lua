@@ -8,6 +8,7 @@ function modules.services.player:initService()
     self.onLoad = modules.libraries.event:create() -- doesnt work in singleplayer
     self.onItemDrop = modules.libraries.event:create()
     self.onRespawn = modules.libraries.event:create()
+    self.onTeleport = modules.libraries.event:create()
 
     self.players = {}
     self.peerIdIndex = {} -- used to convert peerId to steamId
@@ -264,4 +265,10 @@ function modules.services.player:_updatePlayer(player)
     self.players[tostring(player.steamId)] = player
     self.peerIdIndex[tostring(player.peerId)] = tostring(player.steamId)
     self:_save()
+end
+
+---@param player Player
+---@param pos table
+function modules.services.player:_playerTeleported(player, pos)
+    self.onTeleport:fire(player, pos)
 end

@@ -530,6 +530,16 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("back", {"lastpos","last","b"}, {}, "\n \\ Teleport to your last position", function (player, full_message, command, args, hasPerm)
+        local lastPos = player:getExtra("lastPos")
+        if type(lastPos) == "table" then
+            player:setPos(lastPos)
+            player:notify("Back", "Teleported to your last position.", 5)
+        else
+            player:notify("Back", "No last position found.", 6)
+        end
+    end))
+
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
 
     end))

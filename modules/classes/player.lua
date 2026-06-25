@@ -130,6 +130,7 @@ function modules.classes.player:create(peerId, steamId, name, admin, auth, objec
     -- teleports the player to a specific position
     ---@param pos table
     function player:setPos(pos)
+        modules.services.player:_playerTeleported(self, pos)
         server.setPlayerPos(self.peerId, pos)
     end
 

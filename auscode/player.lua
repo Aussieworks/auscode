@@ -119,6 +119,12 @@ function auscode.player:_start(safeMode)
         self:giveDefaultItems(player)
     end)
 
+    self.onTeleportConnection = modules.services.player.onTeleport:connect(function(player, pos)
+        local curPos = player:getPos()
+        player:setExtra("lastPos", curPos)
+        player:save()
+    end)
+
     self.pvpEffectsTask = modules.services.task:create(1, function()
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             if player:getExtra("pvp") == false then
