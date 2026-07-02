@@ -92,7 +92,7 @@ function auscode.chat:_send()
     local messages = self.messages
     for _, message in pairs(messages) do
         if type(message.target) == "table" then
-            modules.libraries.chat:announceGroup(message.title, message.message, message.target)
+            modules.libraries.chat:announceGroup(message.title, message.message, false, message.target)
         else
             modules.libraries.chat:announce(message.title, message.message, message.target, false)
         end

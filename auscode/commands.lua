@@ -540,6 +540,127 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("party", {"p"}, {}, "\n \\ Party commands", function (player, full_message, command, args, hasPerm)
+        local actions={
+            ["create"]=function()
+                if auscode.player:getPartyByPlayer(player) then
+                    player:notify("Party", "You are already in a party.", 6)
+                    return
+                end
+                local party = auscode.player:createParty(player)
+                player:notify("Party", "Created party with ID: "..party.id, 5)
+            end,
+            ["invite"]=function()
+                if not args[2] then
+                    player:notify("[Command] Invalid usage", "Usage: ?party invite {peerId}", 6)
+                    return
+                end
+                local targetPlayer = modules.services.player:getPlayerByPeer(args[2])
+                if targetPlayer then
+                    local party = auscode.player:getPartyByPlayer(player)
+                    if party then
+                        party:invite(targetPlayer)
+                        player:notify("Party", "Invited "..targetPlayer.name.." to party with ID: "..party.id, 5)
+                        targetPlayer:notify("Party", "You have been invited to a party by "..player.name..". Use '?party join "..party.id.."' to join.", 5)
+                    else
+                        player:notify("Party", "You are not in a party.", 6)
+                    end
+                else
+                    player:notify("Party", "Player not found.", 6)
+                end
+            end,
+            ["join"]=function()
+                if not args[2] then
+                    player:notify("[Command] Invalid usage", "Usage: ?party join {partyId}", 6)
+                    return
+                end
+                local party = auscode.player:getPartyById(tonumber(args[2]))
+                if party then
+                    if party:isInvited(player) then
+                        party:addMember(player)
+                        party:removeInvite(player)
+                        player:notify("Party", "Joined party with ID: "..party.id, 5)
+                    else
+                        player:notify("Party", "You are not invited to this party.", 6)
+                    end
+                else
+                    player:notify("Party", "Party not found.", 6)
+                end
+            end,
+            ["leave"]=function()
+                local party = auscode.player:getPartyByPlayer(player)
+                if party then
+                    party:removeMember(player)
+                    player:notify("Party", "Left party with ID: "..party.id, 5)
+                else
+                    player:notify("Party", "You are not in a party.", 6)
+                end
+            end,
+            ["info"]=function()
+                local party = auscode.player:getPartyByPlayer(player)
+                if party then
+                    local members = {}
+                    for _, member in pairs(party.members) do
+                        local memberPlayer = modules.services.player:getPlayer(member)
+                        if memberPlayer then
+                            table.insert(members, memberPlayer.name.." ("..memberPlayer.peerId..")")
+                        end
+                    end
+                    local invited = {}
+                    for _, invite in pairs(party.invited) do
+                        local invitedPlayer = modules.services.player:getPlayer(invite)
+                        if invitedPlayer then
+                            table.insert(invited, invitedPlayer.name.." ("..invitedPlayer.peerId..")")
+                        end
+                    end
+                    modules.libraries.chat:announce("[Party] Info", string.format("Party ID: %s\nMembers: %s\nInvited: %s", party.id, table.concat(members, ", "), table.concat(invited, ", ")), player.peerId)
+                else
+                    player:notify("Party", "You are not in a party.", 6)
+                end
+            end,
+            ["delete"]=function()
+                local party = auscode.player:getPartyByPlayer(player)
+                if party then
+                    if modules.services.player:isSamePlayer(party:getLeader(), player) then
+                        auscode.player:deleteParty(party)
+                        player:notify("Party", "Deleted party with ID: "..party.id, 5)
+                    else
+                        player:notify("Party", "You are not the leader of this party.", 6)
+                    end
+                else
+                    player:notify("Party", "You are not in a party.", 6)
+                end
+            end,
+            ["chat"]=function()
+                local party = auscode.player:getPartyByPlayer(player)
+                if party then
+                    if not args[2] then
+                        player:notify("[Command] Invalid usage", "Usage: ?party chat {message}", 6)
+                        return
+                    end
+                    local message = table.concat(args, " ", 2)
+                    local ids = {}
+                    for _, member in pairs(party.members) do
+                        local memberPlayer = modules.services.player:getPlayer(member)
+                        if memberPlayer then
+                            table.insert(ids, memberPlayer.peerId)
+                        end
+                    end
+                    modules.libraries.chat:announceGroup("[Party Chat] "..player.name, message, ids)
+                else
+                    player:notify("Party", "You are not in a party.", 6)
+                end
+            end
+        }
+
+        if not args[1] or not actions[string.lower(args[1])] then
+            player:notify("[Command] Invalid usage", "Usage: ?party {create|join|leave|invite|info|chat}", 6)
+            return
+        end
+
+        actions[string.lower(args[1])]()
+    end))
+
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
         if args[1] == "party" then
             local party = auscode.player:getPartyByPlayer(player)

@@ -8,6 +8,7 @@ function auscode.classes.party:create(id)
         id = id,
         leader = "",
         members = {},
+        invited = {},
     }
 
     ---@return Player|nil
@@ -17,6 +18,11 @@ function auscode.classes.party:create(id)
 
     ---@param player Player
     function party:addMember(player)
+        for _, steamId in pairs(self.members) do
+            if steamId == player.steamId then
+                return -- player is already a member
+            end
+        end
         table.insert(self.members, player.steamId)
         if #self.members == 1 then
             self.leader = player.steamId
@@ -44,6 +50,28 @@ function auscode.classes.party:create(id)
 
     function party:setLeader(player)
         self.leader = player.steamId
+    end
+
+    function party:invite(player)
+        table.insert(self.invited, player.steamId)
+    end
+
+    function party:removeInvite(player)
+        for i, steamId in pairs(self.invited) do
+            if steamId == player.steamId then
+                table.remove(self.invited, i)
+                break
+            end
+        end
+    end
+
+    function party:isInvited(player)
+        for _, steamId in pairs(self.invited) do
+            if steamId == player.steamId then
+                return true
+            end
+        end
+        return false
     end
 
     function party:save()

@@ -416,9 +416,10 @@ function auscode.player:_loadParties()
     local parties = modules.libraries.gsave:loadTable("parties") or {}
 
     for _, partyData in pairs(parties) do
-        local party = auscode.classes.party:create(partyData.id)
+        local party = auscode.classes.party:create(math.floor(partyData.id))
         party.leader = partyData.leader
         party.members = partyData.members
+        party.invited = partyData.invited or {}
         self.parties[math.floor(partyData.id)] = party
     end
 end
