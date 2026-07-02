@@ -6,7 +6,10 @@ modules.services.tps = modules.services:createService("tps", "Service for calcul
 
 function modules.services.tps:initService()
     self.targetTPS = modules.libraries.settings:getValue("targetTPS",true,0) -- target TPS (ticks per second)
+    self.tpsHistoryLength = modules.libraries.settings:getValue("tpsHistoryLength",true,10) -- length of the TPS history
     self.tps = 0 -- current TPS (ticks per second)
+    self.averageTPS = 0 -- average TPS (ticks per second)
+    self.tpsHistory = {} -- history of TPS values
     self._last = server.getTimeMillisec() -- last tick time in milliseconds
 end
 
@@ -21,6 +24,11 @@ function modules.services.tps:startService()
         end
 
         self.tps = self:_calculateTPS(self._last, now, game_ticks)
+        table.insert(self.tpsHistory, self.tps)
+        if #self.tpsHistory > self.tpsHistoryLength then
+            table.remove(self.tpsHistory, 1)
+        end
+        self.averageTPS = self:_calculateAverageTPS()
         self._last = server.getTimeMillisec() -- update the last tick time
     end)
 end
@@ -34,10 +42,26 @@ function modules.services.tps:_calculateTPS(last, now, ticks)
     return 1000 / (now - last) * ticks
 end
 
+-- internal function to calculate the average TPS (ticks per second)
+---@return number average TPS (ticks per second)
+function modules.services.tps:_calculateAverageTPS()
+    local sum = 0
+    for _, tps in pairs(self.tpsHistory) do
+        sum = sum + tps
+    end
+    return sum / #self.tpsHistory
+end
+
 -- get the current TPS (ticks per second)
 ---@return number TPS (ticks per second)
 function modules.services.tps:getTPS()
     return self.tps
+end
+
+-- get the average TPS (ticks per second)
+---@return number average TPS (ticks per second)
+function modules.services.tps:getAverageTPS()
+    return self:_calculateAverageTPS()
 end
 
 -- set the target for the TPS limiting

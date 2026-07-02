@@ -4,6 +4,7 @@ local settings = {
     loggingDetail = {value = "minimal", default = "full"}, -- Default logging detail set to full
     loggingMode = {value = "chat", default = "chat"}, -- Default logging mode set to chat
     targetTPS = {value = 0, default = 0}, -- Target TPS (ticks per second), 0 means no limiting
+    tpsHistoryLength = {value = 10, default = 10}, -- Length of the TPS history (used for calculating average TPS)
     -- AusCode settings
     auscodeSafeMode = {value = false, default = false}, -- If AusCode should start in safe mode (use default settings)
     auscodeRestartOnError = {value = false, default = false}, -- If AusCode should try to recover from errors (currently not implemented)

@@ -38,6 +38,8 @@ function auscode.player:_start(safeMode)
         self:togglePVP(player, player:getExtra("pvp") or false)
     end
 
+    self:_loadParties()
+
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
         self:updatePerms(player)
         self:giveDefaultPerms(player)
@@ -73,7 +75,7 @@ function auscode.player:_start(safeMode)
             local tracker = modules.services.tracker:create(player, 1, false)
             local pos = tracker:getPos()
             local x,y,z = matrix.position(pos)
-            local widget = modules.services.ui:createMapObject(string.format("%s (%s)",player.name, player.peerId), nil, modules.classes.widgets.color:create(0,255,0), 0, 1, x, z, nil, nil, nil, "playerMapObject"..player.peerId)
+            modules.services.ui:createMapObject(string.format("%s (%s)",player.name, player.peerId), nil, modules.classes.widgets.color:create(0,255,0), 0, 1, x, z, nil, nil, nil, "playerMapObject"..player.peerId)
         end
 
         self:toggleUI(player, self.playerDefaultStates.ui)
@@ -102,6 +104,8 @@ function auscode.player:_start(safeMode)
                 group:despawn(true)
             end
         end
+
+        self:_handlePartyLeave(player)
 
         modules.libraries.chat:announce("[Player] Leave", string.format("%s (%s) has left the server.", player.name, player.peerId))
     end)
@@ -156,7 +160,7 @@ function auscode.player:_start(safeMode)
                         groups = string.sub(groups, 1, 11) .. "..."
                     end
                     if groups == "" then groups = "\n" end
-                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s\n[Vehicles]:\n%s", modules.services.tps:getTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"), groups)
+                    widget.text = string.format("[Server]\n[TPS]: %.0f\n[UpTime]: \n%s\n[Player]\n[AS]: %s\n[PVP]: %s\n[Vehicles]:\n%s", modules.services.tps:getAverageTPS(), auscode.utility:formatTime(modules.services.tps._last), (player:getExtra("as") and "True" or "False"), (player:getExtra("pvp") and "True" or "False"), groups)
                     widget:update()
                 end
             end
@@ -363,14 +367,60 @@ function auscode.player:getHighestPerm(player)
 end
 
 function auscode.player:createParty(leader)
-    local party = modules.classes.party:create(#self.parties+1, leader)
-    self.parties[party.id] = party
+    local party = auscode.classes.party:create(#self.parties+1)
+    party:addMember(leader)
+    party:setLeader(leader)
+    self:saveParty(party)
     return party
 end
 
 function auscode.player:saveParty(party)
     self.parties[party.id] = party
     modules.libraries.gsave:saveTable("parties", self.parties)
+end
+
+function auscode.player:deleteParty(party)
+    self.parties[party.id] = nil
+    modules.libraries.gsave:saveTable("parties", self.parties)
+end
+
+function auscode.player:getPartyByPlayer(player)
+    for _, party in pairs(self.parties) do
+        for _, member in pairs(party.members) do
+            if member == player.steamId then
+                return party
+            end
+        end
+    end
+end
+
+function auscode.player:getPartyById(id)
+    if self.parties[id] then
+        return self.parties[id]
+    end
+end
+
+function auscode.player:_handlePartyLeave(player)
+    local party = self:getPartyByPlayer(player)
+    if not party then
+        return
+    end
+
+    party:removeMember(player)
+    if party.leader == nil and #party.members > 0 then
+        self:deleteParty(party)
+    end
+end
+
+function auscode.player:_loadParties()
+    local parties = modules.libraries.gsave:loadTable("parties") or {}
+
+    for _, partyData in pairs(parties) do
+        local party = auscode.classes.party:create(partyData.id)
+        party.leader = partyData.leader
+        party.members = partyData.members
+        self.parties[math.floor(partyData.id)] = party
+    end
 end
 
 function auscode.player:_verifyUi(player)

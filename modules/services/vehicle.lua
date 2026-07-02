@@ -20,6 +20,10 @@ function modules.services.vehicle:startService()
     end
 
     modules.libraries.callbacks:connect("onVehicleSpawn", function(vehicle_id, peer_id, x, y, z, group_cost, group_id)
+        if peer_id == -1 then
+            return
+        end
+
         group_id = tostring(group_id)
         local vGroup = self.loadingVehicles[group_id]
 

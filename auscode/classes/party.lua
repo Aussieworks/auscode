@@ -1,12 +1,12 @@
 auscode.classes.party = {}
 
----@param leader string|nil
-function auscode.classes.party:create(id, leader)
+---@param id number
+function auscode.classes.party:create(id)
     ---@class ACParty
     local party = {
         _class = "ACParty",
         id = id,
-        leader = leader,
+        leader = "",
         members = {},
     }
 
@@ -18,6 +18,9 @@ function auscode.classes.party:create(id, leader)
     ---@param player Player
     function party:addMember(player)
         table.insert(self.members, player.steamId)
+        if #self.members == 1 then
+            self.leader = player.steamId
+        end
     end
 
     ---@param player Player
@@ -34,6 +37,9 @@ function auscode.classes.party:create(id, leader)
                 self.leader = self.members[1] -- set the new leader to the first member in the list
             end
         end
+        if #self.members == 0 then
+            self:delete()
+        end
     end
 
     function party:setLeader(player)
@@ -42,6 +48,10 @@ function auscode.classes.party:create(id, leader)
 
     function party:save()
         auscode.player:saveParty(self)
+    end
+
+    function party:delete()
+        auscode.player:deleteParty(self)
     end
 
     return party
