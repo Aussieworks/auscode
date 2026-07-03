@@ -31,20 +31,20 @@ function auscode.classes.party:create(id)
 
     ---@param player Player
     function party:removeMember(player)
-        if self.members[player.steamId] then
-            for i, steamId in pairs(self.members) do
-                if steamId == player.steamId then
-                    table.remove(self.members, i)
-                    break
-                end
+        for i, steamId in pairs(self.members) do
+            if steamId == player.steamId then
+                table.remove(self.members, i)
+                break
             end
+        end
 
-            if self.leader == player.steamId then
-                self.leader = self.members[1] -- set the new leader to the first member in the list
-            end
+        if self.leader == player.steamId then
+            self.leader = self.members[1] -- set the new leader to the first member in the list
         end
         if #self.members == 0 then
             self:delete()
+        else
+            self:save()
         end
     end
 
@@ -53,7 +53,20 @@ function auscode.classes.party:create(id)
     end
 
     function party:invite(player)
+        if self:isInvited(player) or self:isMember(player) then
+            return false -- player is already invited or a member
+        end
         table.insert(self.invited, player.steamId)
+        return true
+    end
+
+    function party:isMember(player)
+        for _, steamId in pairs(self.members) do
+            if steamId == player.steamId then
+                return true
+            end
+        end
+        return false
     end
 
     function party:removeInvite(player)
@@ -79,7 +92,7 @@ function auscode.classes.party:create(id)
     end
 
     function party:delete()
-        auscode.player:deleteParty(self)
+        auscode.player:deleteParty(self.id)
     end
 
     return party

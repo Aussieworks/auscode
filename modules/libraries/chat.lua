@@ -18,6 +18,7 @@ end
 
 ---@param title string
 ---@param message string
+---@param log boolean|nil whether to log the message or not, defaults to true
 ---@param ... number|table the target player IDs to send the announcement to
 function modules.libraries.chat:announceGroup(title, message, log, ...) -- send an announcement to a group of players
     local targets = table.pack(...)

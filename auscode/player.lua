@@ -39,6 +39,7 @@ function auscode.player:_start(safeMode)
     end
 
     self:_loadParties()
+    self:_checkPartyMembers()
 
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
         self:updatePerms(player)
@@ -379,17 +380,15 @@ function auscode.player:saveParty(party)
     modules.libraries.gsave:saveTable("parties", self.parties)
 end
 
-function auscode.player:deleteParty(party)
-    self.parties[party.id] = nil
+function auscode.player:deleteParty(id)
+    self.parties[id] = nil
     modules.libraries.gsave:saveTable("parties", self.parties)
 end
 
 function auscode.player:getPartyByPlayer(player)
     for _, party in pairs(self.parties) do
-        for _, member in pairs(party.members) do
-            if member == player.steamId then
-                return party
-            end
+        if party:isMember(player) then
+            return party
         end
     end
 end
@@ -407,8 +406,17 @@ function auscode.player:_handlePartyLeave(player)
     end
 
     party:removeMember(player)
-    if party.leader == nil and #party.members > 0 then
-        self:deleteParty(party)
+end
+
+function auscode.player:_checkPartyMembers()
+    for _, party in pairs(self.parties) do
+        for _, member in pairs(party.members) do
+            local player = modules.services.player:getPlayer(member)
+            modules.libraries.logging:debug("AusCode","Checking party member: %s in party: %s", member, party.id)
+            if not player or not player.inGame then
+                party:removeMember(player)
+            end
+        end
     end
 end
 
