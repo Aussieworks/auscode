@@ -540,7 +540,7 @@ function auscode.commands:_createCommands()
         end
     end))
 
-    self:add(modules.services.command:create("party", {"p"}, {}, "\n \\ Party commands", function (player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("party", {"p"}, {}, "{create|join|leave|kick|invite|info|chat|delete}\n \\ Party management commands", function (player, full_message, command, args, hasPerm)
         local actions={
             ["create"]=function()
                 if auscode.player:getPartyByPlayer(player) then
@@ -712,25 +712,8 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        if args[1] == "party" then
-            local party = auscode.player:getPartyByPlayer(player)
-            modules.libraries.chat:announce("Test", type(party)=="table" and modules.libraries.table:tostring(party) or "No party found", player.peerId)
-        elseif args[1] == "create" then
-            local party = auscode.player:createParty(player)
-            modules.libraries.chat:announce("Test", "Created party with ID: "..party.id, player.peerId)
-        elseif args[1] == "list" then
-            modules.libraries.chat:announce("Test", modules.libraries.table:tostring(auscode.player.parties), player.peerId)
-        elseif args[1] == "delete" then
-            local party = auscode.player:getPartyById(tonumber(args[2]))
-            if party then
-                auscode.player:deleteParty(party.id)
-                modules.libraries.chat:announce("Test", "Deleted party with ID: "..party.id, player.peerId)
-            else
-                modules.libraries.chat:announce("Test", "No party found", player.peerId)
-            end
-        else
-            modules.libraries.chat:announce("Test", "Invalid test command.", player.peerId)
-        end
+        local startIndex, endIndex = string.find("/test?data={test:'e'}", "=",1,true)
+        modules.libraries.chat:announce("[Command] Test", string.sub("/test?data={test:'e'}", endIndex+1), player.peerId)
     end))
 
     self.onCommandCreation:fire()

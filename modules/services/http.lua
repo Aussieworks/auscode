@@ -77,13 +77,13 @@ end
 ---@param callback function
 ---@param groupedRequest boolean
 ---@return HttpRequest|nil
-function modules.services.http:get(url, callback, groupedRequest)
+function modules.services.http:get(url, data, callback, groupedRequest)
     -- Increment the counter for a new request ID
     self.counter = self.counter + 1
     local requestId = self.counter
 
     -- Store the request and its callback
-    self.requests[requestId] = modules.classes.httpRequest:create(url,  requestId, callback)
+    self.requests[requestId] = modules.classes.httpRequest:create(url, data, requestId, callback)
 
     if groupedRequest then
         table.insert(self.groupedRequests, requestId)
@@ -108,9 +108,11 @@ end
 function modules.services.http:_format(request)
     -- Format the request for sending
     local striped = modules.libraries.table:strip(request, "function")
+    striped._class = nil -- remove the _class field for sending
+    striped.url = nil -- remove the url field for sending
     local jsonRequest = modules.libraries.json:encode(striped)
     modules.libraries.logging:debug("http:_format()", "Formatted request: '%s'", jsonRequest)
-    return "/api/http/get?request="..jsonRequest
+    return request.url .."?data="..jsonRequest
 end
 
 -- internal function to format grouped requests for sending
@@ -136,7 +138,7 @@ function modules.services.http:_formatGrouped(requestIds)
 
     if #requests > 0 then
         local formatedRequest = modules.libraries.json:encode(requests)
-        return "/api/http/group?request=" .. formatedRequest
+        return "/api/group?request=" .. formatedRequest
     end
 end
 
@@ -144,7 +146,8 @@ end
 ---@param formatedRequest string
 ---@return number|nil
 function modules.services.http:_deformatToId(formatedRequest)
-    local request = string.gsub(formatedRequest, "/api/http/get%?request=", "")
+    local s,e = string.find(formatedRequest, "=", 1, true)
+    local request = string.sub(formatedRequest, e+1)
     modules.libraries.logging:debug("http:_deformatToId()", "Deformatted request: '%s'", request)
     request = modules.libraries.json:decode(request)
     return request and request.id or nil
@@ -154,7 +157,8 @@ end
 ---@param groupedRequest string
 ---@return table|nil
 function modules.services.http:_deformatGrouped(groupedRequest)
-    local request = string.gsub(groupedRequest, "/api/http/group%?request=", "")
+    local s, e = string.find(groupedRequest, "=", 1, true)
+    local request = string.sub(groupedRequest, e+1)
     modules.libraries.logging:debug("http:_deformatGrouped()", "Deformatted grouped request: '%s'", request)
     request = modules.libraries.json:decode(request)
     if type(request) == "table" then
@@ -178,7 +182,7 @@ function modules.services.http:_load(load)
         else
             for id, request in pairs(loaded.requests) do
                 if type(request) == "table" then
-                    self.requests[id] = modules.classes.httpRequest:create(request.url, id, function(request, reply)
+                    self.requests[id] = modules.classes.httpRequest:create(request.url, request.data, id, function(request, reply)
                         modules.libraries.logging:error("httpRequest", "Http reply received after reload or load, function no longer exists for ID: '%s'", tostring(id))
                     end)
                 else
