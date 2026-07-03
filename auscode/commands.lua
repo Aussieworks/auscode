@@ -669,7 +669,7 @@ function auscode.commands:_createCommands()
                         table.insert(ids, memberPlayer.peerId)
                     end
                 end
-                modules.libraries.chat:announceGroup("[Party Chat] "..player.name, message, true, ids)
+                modules.libraries.chat:announceGroup("[Party] Chat: "..player.name, message, true, ids)
             end,
             ["kick"]=function()
                 local party = auscode.player:getPartyByPlayer(player)
@@ -704,7 +704,7 @@ function auscode.commands:_createCommands()
         }
 
         if not args[1] or not actions[string.lower(args[1])] then
-            player:notify("[Command] Invalid usage", "Usage: ?party {create|join|leave|kick|invite|info|chat}", 6)
+            player:notify("[Command] Invalid usage", "Usage: ?party {create|join|leave|kick|invite|info|chat|delete}", 6)
             return
         end
 
