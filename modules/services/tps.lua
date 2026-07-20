@@ -61,7 +61,7 @@ end
 -- get the average TPS (ticks per second)
 ---@return number average TPS (ticks per second)
 function modules.services.tps:getAverageTPS()
-    return self:_calculateAverageTPS()
+    return self.averageTPS
 end
 
 -- set the target for the TPS limiting
