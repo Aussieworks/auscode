@@ -3,6 +3,7 @@ local settings = {
     loggingLevel = {value = 2, default = 4}, -- Default log level set to ERROR
     loggingDetail = {value = "minimal", default = "full"}, -- Default logging detail set to full
     loggingMode = {value = "chat", default = "chat"}, -- Default logging mode set to chat
+    loggingHistoryLength = {value = 0, default = 100}, -- Maximum number of logs to keep in history, 0 means no limit
     targetTPS = {value = 0, default = 0}, -- Target TPS (ticks per second), 0 means no limiting
     tpsHistoryLength = {value = 10, default = 10}, -- Length of the TPS history (used for calculating average TPS)
     -- AusCode settings

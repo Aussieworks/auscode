@@ -712,8 +712,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        local startIndex, endIndex = string.find("/test?data={test:'e'}", "=",1,true)
-        modules.libraries.chat:announce("[Command] Test", string.sub("/test?data={test:'e'}", endIndex+1), player.peerId)
+        modules.libraries.chat:announce("[Command] Test", #modules.libraries.logging.logs, player.peerId)
     end))
 
     self.onCommandCreation:fire()

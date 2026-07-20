@@ -15,6 +15,8 @@ modules.libraries.logging.loggingDetail = modules.libraries.settings:getValue("l
 
 modules.libraries.logging.loggingMode = modules.libraries.settings:getValue("loggingMode",true,"chat") -- set the default log mode to console
 
+modules.libraries.logging.loggingHistoryLength = modules.libraries.settings:getValue("loggingHistoryLength",true,100) -- set the default log history length to 100
+
 ---@param logtype number
 ---@param title string
 ---@param message string
@@ -23,6 +25,11 @@ function modules.libraries.logging:log(logtype, title, message, ...)
     local bundledlog = self:_bundleLog(self:_logLevelToString(logtype), title, message, ...) -- bundle the log into a table for easy access
     local formattedlog = self:_formatLog(bundledlog) -- format the log into a string for easy access
     table.insert(self.logs, bundledlog) -- add the log to the logs table
+
+    -- Limit the number of logs kept in history
+    if self.loggingHistoryLength > 0 and #self.logs > self.loggingHistoryLength then
+        table.remove(self.logs, 1)
+    end
 
     if self.loggingMode == "console" then
         debug.log(formattedlog) -- print the log to the console
