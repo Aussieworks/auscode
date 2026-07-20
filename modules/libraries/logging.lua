@@ -27,8 +27,10 @@ function modules.libraries.logging:log(logtype, title, message, ...)
     table.insert(self.logs, bundledlog) -- add the log to the logs table
 
     -- Limit the number of logs kept in history
-    if self.loggingHistoryLength > 0 and #self.logs > self.loggingHistoryLength then
-        table.remove(self.logs, 1)
+    if self.loggingHistoryLength > 0 then
+        while #self.logs > self.loggingHistoryLength do
+            table.remove(self.logs, 1)
+        end
     end
 
     if self.loggingMode == "console" then

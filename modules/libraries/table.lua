@@ -93,3 +93,11 @@ function modules.libraries.table:deepCopy(tbl)
     end
     return copy
 end
+
+function modules.libraries.table:count(tbl)
+    local count = 0
+    for _, _ in pairs(tbl) do
+        count = count + 1
+    end
+    return count
+end

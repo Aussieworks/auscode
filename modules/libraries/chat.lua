@@ -13,6 +13,7 @@ function modules.libraries.chat:announce(title, message, target, log)
     if log ~= false then
         table.insert(self.messages, {title = title, message = message, target = target}) -- add the message to the messages table
         self.onAnnounce:fire({title = title, message = message, target = target}) -- add the message to the messages table
+        self:_checkMessagesTable() -- check if the messages table is over the limit and remove the oldest message if it is
     end
 end
 
@@ -32,5 +33,12 @@ function modules.libraries.chat:announceGroup(title, message, log, ...) -- send 
     if log ~= false then
         table.insert(self.messages, {title = title, message = message, target = targets}) -- add the message to the messages table
         self.onAnnounce:fire({title = title, message = message, target = targets}) -- add the message to the messages table
+        self:_checkMessagesTable() -- check if the messages table is over the limit and remove the oldest message if it is
+    end
+end
+
+function modules.libraries.chat:_checkMessagesTable()
+    while modules.libraries.table:count(self.messages) > 1000 do
+        table.remove(self.messages, 1) -- remove the oldest message if the limit is exceeded
     end
 end

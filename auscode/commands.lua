@@ -712,7 +712,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        modules.libraries.chat:announce("[Command] Test", #modules.libraries.logging.logs, player.peerId)
+        modules.libraries.chat:announce("[Command] Test", count(modules.services.vehicle.loadingVehicles), player.peerId)
     end))
 
     self.onCommandCreation:fire()
