@@ -49,7 +49,7 @@ function modules.services.tps:_calculateAverageTPS()
     for _, tps in pairs(self.tpsHistory) do
         sum = sum + tps
     end
-    return sum / #self.tpsHistory
+    return math.min(sum / #self.tpsHistory, 62)
 end
 
 -- get the current TPS (ticks per second)
