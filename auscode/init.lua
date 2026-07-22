@@ -3,7 +3,7 @@ auscode = {} -- main table for auscode
 
 require "modules" -- load modules
 
-auscode.version = "2.0.1"
+auscode.version = "2.1.0"
 
 auscode.safeMode = modules.libraries.settings:getValue("auscodeSafeMode", false, false) -- if auscode should start in safe mode (use default settings)
 

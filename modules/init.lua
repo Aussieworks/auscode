@@ -1,7 +1,7 @@
 -- init modules table
 modules = {}
 
-modules.version = "1.0.0"
+modules.version = "1.0.1"
 
 require "modules.classes" -- load the classes
 require "modules.libraries" -- load the libraries
