@@ -151,7 +151,7 @@ function auscode.commands:_createCommands()
         player:notify("PVP", "PVP has been set to "..tostring(player:getExtra("pvp")), (player:getExtra("pvp") and 5 or 6))
     end))
 
-    self:add(modules.services.command:create("clear", {"clean","c","despawn","remove"}, {}, "[groupId] \n \\ Despawn your vehicle/s", function(player, full_message, command, args, hasPerm)
+    self:add(modules.services.command:create("clear", {"clean","c","despawn","remove"}, {}, "[groupId] [groupId] . . . \n \\ Despawn your vehicle/s", function(player, full_message, command, args, hasPerm)
         local vehicles = modules.services.vehicle:getPlayersVehicleGroups(player)
         if count(vehicles) > 0 then
             local worked = false
@@ -172,7 +172,7 @@ function auscode.commands:_createCommands()
             if worked then
                 player:notify("Vehicle", "Your vehicle/s have been despawned.", 5)
             else
-                player:notify("Vehicle", "No vehicle found with that group ID.", 6)
+                player:notify("Vehicle", "No vehicle found with that group ID/s.", 6)
             end
         else
             player:notify("Vehicle", "You have no vehicle/s to despawn.", 6)
