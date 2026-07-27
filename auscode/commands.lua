@@ -156,10 +156,14 @@ function auscode.commands:_createCommands()
         if count(vehicles) > 0 then
             local worked = false
             for _, group in pairs(vehicles) do
-                if #args > 0 and group.groupId == args[1] then
-                    group:despawn(true)
-                    worked = true
-                    break
+                if #args > 0 then
+                    for _, arg in pairs(args) do
+                        if tostring(group.groupId) == tostring(arg) then
+                            group:despawn(true)
+                            worked = true
+                            break
+                        end
+                    end
                 elseif #args == 0 then
                     group:despawn(true)
                     worked = true
@@ -712,7 +716,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        modules.libraries.chat:announce("[Command] Test", tostring(modules.libraries.string:DlDistance(args[1], args[2])), player.peerId)
+        modules.libraries.chat:announce("[Command] Test", tostring(#args), player.peerId)
     end))
 
     self.onCommandCreation:fire()
