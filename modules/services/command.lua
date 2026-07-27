@@ -1,5 +1,5 @@
 ---@class commandService: Service
----@field commands table<string, Command> -- table of commands
+---@field commands table<string, Command|string> -- table of commands
 modules.services.command = modules.services:createService("command", "Commands Service", {"ChickenMst"})
 
 function modules.services.command:initService()
@@ -16,9 +16,15 @@ function modules.services.command:startService()
 
         if not command or command == "" then modules.libraries.logging:info("services.command", "Empty command ignored") return end -- ignore empty commands
 
+        local player = modules.services.player:getPlayerByPeer(peer_id)
+
+        if not player then
+            modules.libraries.logging:error("services.command", "Player not found for peer_id: %s | Command: %s", peer_id, command)
+            return
+        end
+
         local args = table.pack(...) -- pack the arguments into a table
 
-        local player = modules.services.player:getPlayerByPeer(peer_id)
         self:run(command, full_message, player, args)
     end)
 end
@@ -33,37 +39,27 @@ end
 function modules.services.command:create(commandstr, alias, perms, description, func)
     commandstr = self:cleanCommandString(commandstr) -- clean command string
     -- check if command already exists
-    local existing_command = self.commands[commandstr]
-    if existing_command then
+    if self.commands[commandstr] then
         modules.libraries.logging:warning("services.command", "Command already exists: %s", commandstr)
         return
     end
 
-    -- check if alias already exists
-    if type(alias) == "table" then
-        for _, a in pairs(alias) do
-            -- check if alias is the same as its command
-            if self:cleanCommandString(a) == self:cleanCommandString(commandstr) then
-                modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as command: '%s' | aborting command creation", a, commandstr)
-                return
-            end
-            for _, cmd in pairs(self.commands) do
-                if type(cmd.alias) == "table" then
-                    for _, existing_a in pairs(cmd.alias) do
-                        if self:cleanCommandString(a) == self:cleanCommandString(existing_a) then -- check if alias is the same as another alias
-                            modules.libraries.logging:warning("services.command", "Alias: '%s' for command: '%s' already exists | aborting command creation", a, commandstr)
-                            return
-                        elseif self:cleanCommandString(a) == self:cleanCommandString(cmd.commandstr) then -- check if alias is the same as another command
-                            modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as command: '%s' | aborting command creation", a, cmd.commandstr)
-                            return
-                        end
-                    end
-                end
-            end
-        end
-    else
+    -- check if alias is a table
+    if type(alias) ~= "table" then
         modules.libraries.logging:warning("services.command", "Alias is not a table, aborting command creation")
         return
+    end
+
+    for _, a in pairs(alias) do
+        if a == commandstr then
+            modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as command | aborting command creation", a, commandstr)
+            return
+        end
+
+        if self.commands[a] then
+            modules.libraries.logging:warning("services.command", "Alias: '%s' can't be the same as another command | aborting command creation", a)
+            return
+        end
     end
 
     -- if didnt return false, create command
@@ -72,39 +68,64 @@ function modules.services.command:create(commandstr, alias, perms, description, 
 
     self.commands[commandstr] = command -- add command to table
 
+    for _, a in pairs(alias) do
+        self.commands[a] = commandstr -- add alias to table
+    end
+
     return command
 end
 
 -- enables command so it can get run, by default when created it is enabled
 ---@param commandstr string
 function modules.services.command:enable(commandstr)
+    if type(self.commands[commandstr]) == "string" then
+        modules.libraries.logging:error("services.command", "Attempted to enable command via alias: %s | Aborting", self.commands[commandstr])
+        return false
+    end
+
     if self.commands[commandstr] then
         self.commands[commandstr]:enable()
         modules.libraries.logging:debug("services.command", "Command enabled: %s", commandstr)
+        return true
     else
         modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
+        return false
     end
 end
 
 -- disables command so it cant get run
 ---@param commandstr string
 function modules.services.command:disable(commandstr)
+    if type(self.commands[commandstr]) == "string" then
+        modules.libraries.logging:error("services.command", "Attempted to disable command via alias: %s | Aborting", self.commands[commandstr])
+        return false
+    end
+
     if self.commands[commandstr] then
         self.commands[commandstr]:disable()
         modules.libraries.logging:debug("services.command", "Command disabled: %s", commandstr)
+        return true
     else
         modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
+        return false
     end
 end
 
 -- removes command
 ---@param commandstr string
 function modules.services.command:remove(commandstr)
+    if type(self.commands[commandstr]) == "string" then
+        modules.libraries.logging:error("services.command", "Attempted to remove command via alias: %s | Aborting", self.commands[commandstr])
+        return false
+    end
+
     if self.commands[commandstr] then
         self.commands[commandstr] = nil
         modules.libraries.logging:debug("services.command", "Command removed: %s", commandstr)
+        return true
     else
         modules.libraries.logging:warning("services.command", "Command not found: %s", commandstr)
+        return false
     end
 end
 
@@ -138,24 +159,17 @@ end
 ---@param command string
 ---@return Command|nil
 function modules.services.command:getCommand(command)
-    if self.commands[command] then
-        return self.commands[command]
-    elseif not self.commands[command] then
-        for _, cmd in pairs(self.commands) do
-            for _, alias in pairs(cmd.alias) do
-                if alias == command then
-                    return cmd
-                end
-            end
-        end
-        modules.libraries.logging:info("services.command:getCommand()", "Command not found: %s", command)
+    if type(self.commands[command]) == "string" then
+        return self.commands[self.commands[command]] -- get the actual command string from the alias
+    else
+        return self.commands[command] -- get the command directly
     end
 end
 
 -- gets all commands
 ---@return table<string, Command>
 function modules.services.command:getCommands()
-    return self.commands
+    return modules.libraries.table:strip(self.commands, "string", true) -- remove all aliases from the table
 end
 
 ---@param player Player

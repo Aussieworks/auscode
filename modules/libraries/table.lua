@@ -55,8 +55,9 @@ end
 
 ---@param tbl table The table to strip.
 ---@param typeOf string The type to strip from the table.
+---@param shallow boolean|nil If true, only strip the top level of the table. If false, strip all levels of the table.
 ---@return table -- The stripped table.
-function modules.libraries.table:strip(tbl, typeOf)
+function modules.libraries.table:strip(tbl, typeOf, shallow)
     local stripped = {}
     for k, v in pairs(tbl) do
         if type(v)=="table" then
@@ -69,7 +70,7 @@ function modules.libraries.table:strip(tbl, typeOf)
             goto continue
         end
 
-        if type(v) == "table" then
+        if type(v) == "table" and not shallow then
             stripped[k] = self:strip(v, typeOf)
         else
             stripped[k] = v
