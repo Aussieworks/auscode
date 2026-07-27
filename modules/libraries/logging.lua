@@ -86,7 +86,7 @@ end
 ---@param state string
 function modules.libraries.logging:setLogLevel(state)
     if state then
-        state = state:upper() -- make the state lowercase
+        state = state:upper() -- make the state uppercase
     else
         modules.libraries.logging:error("libraries.logging", "log level cannot be nil") -- print an error to the console
         return
