@@ -1,6 +1,6 @@
 modules.libraries.string = {} -- table of string functions
 
--- calculates the Damerau Levenshtein Distance
+-- calculates the Damerau Levenshtein Distance (lower means more similar)
 ---@param a string
 ---@param b string
 ---@return number distance
