@@ -183,6 +183,14 @@ function modules.services.ui:createMapLabel(text, labelType, x, z, player, name)
     return widget
 end
 
+--- creates a map line widget
+--- @param color Color|nil The color of the map line
+--- @param startMatrix SWMatrix|nil The starting position of the map line (defaults to 0,0,0)
+--- @param endMatrix SWMatrix|nil The ending position of the map line (defaults to 0,0,0)
+--- @param width number|nil The width of the map line (defaults to 1)
+--- @param player Player|nil The player to show the map line to (defaults to nil, which means all players)
+--- @param name string|nil The name of the map line
+--- @return MapLineWidget
 function modules.services.ui:createMapLine(color, startMatrix, endMatrix, width, player, name)
     local id = server.getMapID()
     local widget = modules.classes.widgets.mapLine:create(id, startMatrix, endMatrix, width, color, player, name)
