@@ -607,7 +607,7 @@ class ServerManager:
 
         LOGGER.info("Starting server: argv=%r cwd=%s", argv, workdir)
         # start_new_session sets a new process group (setsid); not supported on Windows asyncio/Popen.
-        sub_kw: dict[str, object] = {"cwd": str(workdir), "env": subprocess_env}
+        sub_kw: dict[str, object] = {"cwd": str(workdir), "env": subprocess_env, "stdout": asyncio.subprocess.DEVNULL, "stderr": asyncio.subprocess.DEVNULL, "stdin": asyncio.subprocess.DEVNULL}
         if os.name == "posix":
             sub_kw["start_new_session"] = True
         self._process = await asyncio.create_subprocess_exec(*argv, **sub_kw)

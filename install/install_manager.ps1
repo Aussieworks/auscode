@@ -188,7 +188,7 @@ if (-not `$ok) {
 } else {
     Write-Host "aus-server already responding on port `$ApiPort"
 }
-Write-Host "Server starting; API at `$ApiUrl — stop: $(Join-Path $Bin 'stop-aus.ps1')"
+Write-Host "Server starting; API at `$ApiUrl : stop: $(Join-Path $Bin 'stop-aus.ps1')"
 `$AusBat = Join-Path `$InstallRoot 'bin\aus.cmd'
 & `$AusBat start 1
 if (`$null -ne `$LASTEXITCODE -and `$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }
