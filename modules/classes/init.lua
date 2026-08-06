@@ -12,3 +12,4 @@ require "modules.classes.player" -- load the player class
 require "modules.classes.httpRequest" -- load the HTTP request class
 require "modules.classes.widgets" -- load the UI classes
 require "modules.classes.tracker" -- load the tracker class
+require "modules.classes.polygon" -- load the polygon class

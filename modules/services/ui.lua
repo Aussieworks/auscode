@@ -183,6 +183,16 @@ function modules.services.ui:createMapLabel(text, labelType, x, z, player, name)
     return widget
 end
 
+function modules.services.ui:createMapLine(color, startMatrix, endMatrix, width, player, name)
+    local id = server.getMapID()
+    local widget = modules.classes.widgets.mapLine:create(id, startMatrix, endMatrix, width, color, player, name)
+
+    widget:update()
+    self:_addWidget(widget)
+
+    return widget
+end
+
 function modules.services.ui:_save()
     modules.libraries.gsave:saveService("ui", self)
 end
@@ -200,7 +210,10 @@ function modules.services.ui:_load()
         end,
         ["mapLabel"] = function(widget)
             return modules.classes.widgets.mapLabel:create(math.floor(widget.id), widget.text, widget.labelType, widget.x, widget.z, widget.player, widget.name)
-        end
+        end,
+        ["mapLine"] = function(widget)
+            return modules.classes.widgets.mapLine:create(math.floor(widget.id), widget.startM, widget.endM, widget.width, widget.color, widget.player, widget.name)
+        end,
     } -- table of functions to rebuild widgets mapped by widget type
     local service = modules.libraries.gsave:loadService("ui")
 
