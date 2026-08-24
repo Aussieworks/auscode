@@ -716,21 +716,9 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        if args[1] == "create" then
-            local color = modules.classes.widgets.color:create(255, 0, 0, 255)
-            local poly = modules.classes.polygon:create(
-                matrix.translation(0, 0, 0),matrix.translation(100, 0, 0),matrix.translation(10, 0, 200),matrix.translation(0, 0, 200),matrix.translation(0, 0, 100)
-            )
-            poly:makeLines()
-            for _, line in pairs(poly.lines) do
-                local widget = modules.services.ui:createMapLine(color, line[1], line[2], 1, player, "Test Line")
-                widget:update()
-                widget:save()
-                modules.libraries.chat:announce("[Command] Test", "Created line: " .. widget.id, player.peerId)
-            end
-        elseif args[1] == "remove" then
-            modules.services.ui:removeWidget(tonumber(args[2]))
-        end
+        modules.services.object:connectOnSpawn(63, function(object)
+            object:despawn(true)
+        end)
     end))
 
     self.onCommandCreation:fire()

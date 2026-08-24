@@ -55,6 +55,7 @@ end
 require "modules.services.task" -- load the tasks service
 require "modules.services.http" -- load the HTTP service
 require "modules.services.addon" -- load the addons service
+require "modules.services.object" -- load the object service
 require "modules.services.player" -- load the player service
 require "modules.services.command" -- load the commands service
 require "modules.services.tps" -- load the TPS service

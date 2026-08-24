@@ -8,6 +8,7 @@ require "modules.classes.command" -- load the command class
 require "modules.classes.connection" -- load the connection class
 require "modules.classes.vehicle" -- load the callback classes
 require "modules.classes.vehicleGroup" -- load the vehicle group class
+require "modules.classes.object" -- load the object class
 require "modules.classes.player" -- load the player class
 require "modules.classes.httpRequest" -- load the HTTP request class
 require "modules.classes.widgets" -- load the UI classes
