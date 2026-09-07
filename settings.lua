@@ -6,7 +6,8 @@ local settings = {
     loggingHistoryLength = {value = 10000, default = 10000}, -- Maximum number of logs to keep in history, 0 means no limit (10000 is around 30 seconds of logs at 60 TPS)
     targetTPS = {value = 0, default = 0}, -- Target TPS (ticks per second), 0 means no limiting
     tpsHistoryLength = {value = 10, default = 10}, -- Length of the TPS history (used for calculating average TPS)
-    objectSpawnCheck = {value = true, default = true}, -- If the object service should check for spawned objects (very expensive, only enable if you need it)
+    objectSpawnCheck = {value = false, default = false}, -- If the object service should check for spawned objects (can be expensive, only enable if you need it)
+    objectSpawnCheckBatchSize = {value = 100, default = 100}, -- Number of objects to check for spawned objects at a time
     -- AusCode settings
     auscodeSafeMode = {value = false, default = false}, -- If AusCode should start in safe mode (use default settings)
     auscodeRestartOnError = {value = false, default = false}, -- If AusCode should try to recover from errors (currently not implemented)
@@ -44,7 +45,7 @@ local settings = {
     -- Vehicle settings
     auscodeVehicleMapObjects = {value = true, default = true}, -- If custom vehicle map objects should be created
     auscodeVehicleAllowWorkshop = {value = true, default = true}, -- If players should be allowed to spawn workshop vehicles
-    auscodeVehicleVoxelLimit = {value = 30000, default = 10000}, -- Maximum number of voxels allowed in a vehicle
+    auscodeVehicleVoxelLimit = {value = 10000, default = 10000}, -- Maximum number of voxels allowed in a vehicle
     auscodeVehicleSubBodyLimit = {value = 10, default = 10}, -- Maximum number of sub-bodies allowed in a vehicle
     auscodeVehicleTimeLimit = {value = 0, default = 0}, -- Time limit for vehicles spawning in milliseconds, 0 means no time limit
     auscodeVehicleGroupLimit = {value = 1, default = 1}, -- Maximum number of vehicle groups a player can have

@@ -13,6 +13,7 @@ function modules.services.object:initService()
 
     self._lastObjectId = 0
     self.objectSpawnCheck = modules.libraries.settings:getValue("objectSpawnCheck", true, true)
+    self.objectSpawnCheckBatchSize = modules.libraries.settings:getValue("objectSpawnCheckBatchSize", true, 100)
 end
 
 function modules.services.object:startService()
@@ -30,12 +31,17 @@ function modules.services.object:startService()
            self.spawnedObjectIndex[object_id] = nil
         end
 
-        table.insert(self.loadedObjectIndex, object_id) -- add the object to the loaded index
+        self.loadedObjectIndex[object_id] = true -- add the object to the loaded index
 
         local object = self.objects[object_id]
-        local objectData = server.getObjectData(object_id)
+        local objectData, worked = server.getObjectData(object_id)
 
-        if self.onLoadEvents[objectData.object_type] then
+        if not worked then
+            modules.libraries.logging:debug("services.object", "Failed to get object data for object id: %s", object_id)
+            return
+        end
+
+        if objectData and objectData.object_type and self.onLoadEvents[objectData.object_type] then
             modules.libraries.logging:debug("services.object", "Firing onLoad event for object type: %s", objectData.object_type)
             self.onLoadEvents[objectData.object_type]:fire(object, objectData)
         end
@@ -51,9 +57,14 @@ function modules.services.object:startService()
         end
 
         local object = self.objects[object_id]
-        local objectData = server.getObjectData(object_id)
+        local objectData, worked = server.getObjectData(object_id)
 
-        if self.onUnloadEvents[objectData.object_type] then
+        if not worked then
+            modules.libraries.logging:debug("services.object", "Failed to get object data for object id: %s", object_id)
+            return
+        end
+
+        if objectData and objectData.object_type and self.onUnloadEvents[objectData.object_type] then
             modules.libraries.logging:debug("services.object", "Firing onUnload event for object type: %s", objectData.object_type)
             self.onUnloadEvents[objectData.object_type]:fire(object, objectData)
         end
@@ -63,9 +74,10 @@ function modules.services.object:startService()
     end)
 
     if self.objectSpawnCheck then
+        self:_initCheckForSpawnedObjects()
+
         modules.services.task:create(1, function()
             self:_checkForSpawnedObjects()
-            self:_save()
         end, true, false)
     end
 end
@@ -81,7 +93,7 @@ function modules.services.object:findCurrentObjectId()
     return currentId
 end
 
-function modules.services.object:_checkForSpawnedObjects()
+function modules.services.object:_initCheckForSpawnedObjects()
     local startId = self._lastObjectId + 1
     local endId = self:findCurrentObjectId()
 
@@ -92,9 +104,31 @@ function modules.services.object:_checkForSpawnedObjects()
     self._lastObjectId = endId
 end
 
+function modules.services.object:_checkForSpawnedObjects()
+    local startId = self._lastObjectId + 1
+    local endId = startId + self.objectSpawnCheckBatchSize
+    local save = false
+    local lastExists = false
+
+    for objectId = startId, endId do
+        lastExists = false
+        if self:_checkIfSpawnedObject(objectId) then
+            self._lastObjectId = objectId
+            lastExists = true
+            save = true
+        end
+    end
+    if lastExists then -- keep going if the last object checked object existed, as it is likely there are more objects to check
+        self:_checkForSpawnedObjects()
+    end
+    if save then
+        self:_save()
+    end
+end
+
 function modules.services.object:_checkIfSpawnedObject(objectId)
     if self.objects[objectId] then -- if the object class exists skip the checks
-        return
+        return false
     end
 
     local object = modules.classes.object:create(objectId)
@@ -102,15 +136,16 @@ function modules.services.object:_checkIfSpawnedObject(objectId)
     if object:exists() then
         local objectData = server.getObjectData(objectId)
         if not objectData or objectData.object_type == 0 then
-            return
+            return false
         end
         self.objects[objectId] = object
-        table.insert(self.spawnedObjectIndex, objectId)
+        self.spawnedObjectIndex[objectId] = true
         modules.libraries.logging:debug("services.object", "Detected spawned object with id: %s and type: %s", objectId, objectData.object_type)
         if self.onSpawnEvents[objectData.object_type] then
             modules.libraries.logging:debug("services.object", "Firing onSpawn event for object type: %s", objectData.object_type)
             self.onSpawnEvents[objectData.object_type]:fire(object, objectData)
         end
+        return true
     end
 end
 
