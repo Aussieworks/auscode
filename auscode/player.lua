@@ -72,7 +72,7 @@ function auscode.player:_start(safeMode)
         widget:_remove(player)
         widget:update()
 
-        if self.playerMapObjects then
+        if self.playerMapObjects and #modules.services.ui:getWidgetsByName("playerMapObject"..player.peerId) == 0 then
             local tracker = modules.services.tracker:create(player, 1, false)
             local pos = tracker:getPos()
             local x,y,z = matrix.position(pos)
