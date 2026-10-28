@@ -81,6 +81,7 @@ function auscode.vehicle:_start(safeMode)
         local groups = owner:getExtra("groups") or {}
         table.insert(groups, group.groupId)
         owner:setExtra("groups", groups)
+        owner:setExtra("lastPos", owner:getPos())
         owner:save()
         modules.libraries.chat:announce("[Vehicle] Spawn", string.format("%s Spawned vehicle group: %s (Voxels: %s, Sub-Bodies: %s Time: %sms)",group:getOwner().name,group.groupId,self:getVoxelCount(group),self:getSubBodyCount(group),group:getLoadingTime()), -1)
     end)
