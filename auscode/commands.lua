@@ -544,6 +544,11 @@ function auscode.commands:_createCommands()
         end
     end))
 
+    self:add(modules.services.command:create("playtime", {"pt","plt","playt"}, {}, "\n \\ Show your playtime", function (player, full_message, command, args, hasPerm)
+        local playtime = player:getExtra("playtime") or 0
+        player:notify("Playtime", string.format("You have played for %s", auscode.utility:formatTime(playtime)), 5)
+    end))
+
     self:add(modules.services.command:create("party", {"p"}, {}, "{create|join|leave|kick|invite|info|chat|delete}\n \\ Party management commands", function (player, full_message, command, args, hasPerm)
         local actions={
             ["create"]=function()
@@ -716,9 +721,7 @@ function auscode.commands:_createCommands()
     end))
 
     self:add(modules.services.command:create("test", {}, {"owner"}, "\n \\ Test Command", function (player, full_message, command, args, hasPerm)
-        modules.services.object:connectOnSpawn(63, function(object)
-            object:despawn(true)
-        end)
+        modules.libraries.chat:announce("[Command] Playtime", modules.libraries.table:tostring(modules.services.ui.widgets), player.peerId)
     end))
 
     self.onCommandCreation:fire()

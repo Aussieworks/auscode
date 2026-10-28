@@ -4,8 +4,10 @@ local settings = {
     loggingDetail = {value = "minimal", default = "full"}, -- Default logging detail set to full
     loggingMode = {value = "chat", default = "chat"}, -- Default logging mode set to chat
     loggingHistoryLength = {value = 10000, default = 10000}, -- Maximum number of logs to keep in history, 0 means no limit (10000 is around 30 seconds of logs at 60 TPS)
+    -- Tps settings
     targetTPS = {value = 0, default = 0}, -- Target TPS (ticks per second), 0 means no limiting
     tpsHistoryLength = {value = 10, default = 10}, -- Length of the TPS history (used for calculating average TPS)
+    -- Object settings
     objectSpawnCheck = {value = false, default = false}, -- If the object service should check for spawned objects (can be expensive, only enable if you need it)
     objectSpawnCheckBatchSize = {value = 100, default = 100}, -- Number of objects to check for spawned objects at a time
     -- AusCode settings
@@ -42,6 +44,7 @@ local settings = {
     auscodePlayerDespawnDroppedItems = {value = true, default = true}, -- If dropped items should despawn
     auscodePlayerDroppedItemDespawnTime = {value = 10, default = 20}, -- Time in seconds for dropped items to despawn
     auscodePlayerMapObjects = {value = true, default = true}, -- If custom player map objects should be created
+    auscodePlayerPlaytime = {value = true, default = true}, -- If player playtime should be tracked
     -- Vehicle settings
     auscodeVehicleMapObjects = {value = true, default = true}, -- If custom vehicle map objects should be created
     auscodeVehicleAllowWorkshop = {value = true, default = true}, -- If players should be allowed to spawn workshop vehicles

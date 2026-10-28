@@ -25,6 +25,10 @@ function auscode.player:_init(safeMode)
 
     self.playerMapObjects = modules.libraries.settings:getValue("auscodePlayerMapObjects", true, true)
 
+    self.playerPlaytime = modules.libraries.settings:getValue("auscodePlayerPlaytime", true, true)
+
+    self.playerPvpEffects = modules.libraries.settings:getValue("auscodePlayerPVPEffects", true, true)
+
     self.parties = {} -- table to store player parties
 
     return true
@@ -36,6 +40,7 @@ function auscode.player:_start(safeMode)
         self:giveDefaultPerms(player)
         self:toggleAntisteal(player, player:getExtra("as") or false)
         self:togglePVP(player, player:getExtra("pvp") or false)
+        self:updatePlaytime(player)
     end
 
     self:_loadParties()
@@ -44,6 +49,7 @@ function auscode.player:_start(safeMode)
     self.onJoinConnection = modules.services.player.onJoin:connect(function(player)
         self:updatePerms(player)
         self:giveDefaultPerms(player)
+        self:resetPlaytimeLastUpdate(player)
         self:toggleAntisteal(player, self.playerDefaultStates.as)
         self:togglePVP(player, self.playerDefaultStates.pvp)
         self:toggleUI(player, self.playerDefaultStates.ui)
@@ -130,7 +136,12 @@ function auscode.player:_start(safeMode)
         player:save()
     end)
 
-    self.pvpEffectsTask = modules.services.task:create(1, function()
+    self.pvpEffectsTask = modules.services.task:create(1, function(task)
+        if not self.playerPvpEffects then
+            modules.services.task:remove(task)
+            return
+        end
+
         for _, player in pairs(modules.services.player:getOnlinePlayers()) do
             if player:getExtra("pvp") == false then
                 local playerData = player:getData(true)
@@ -193,6 +204,18 @@ function auscode.player:_start(safeMode)
             end
         end
     end, true, false)
+
+    -- player playtime task
+    self.playerPlaytimeTask = modules.services.task:create(1, function(task)
+        if not self.playerPlaytime then
+            modules.services.task:remove(task)
+            return
+        end
+
+        for _, player in pairs(modules.services.player:getOnlinePlayers()) do
+            self:updatePlaytime(player)
+        end
+    end, true, true)
 
     for _, player in pairs(modules.services.player:getOnlinePlayers()) do
         self:_verifyUi(player)
@@ -406,6 +429,29 @@ function auscode.player:_handlePartyLeave(player)
     end
 
     party:removeMember(player)
+end
+
+function auscode.player:updatePlaytime(player)
+    local playtime = player:getExtra("playtime") or 0
+    local playtimeLastUpdate = player:getExtra("playtimeLastUpdate") or modules.services.tps._last
+    if playtimeLastUpdate > modules.services.tps._last then
+        playtimeLastUpdate = modules.services.tps._last
+    end
+    player:setExtra("playtime", (playtime + (modules.services.tps._last - playtimeLastUpdate)) or 0)
+    player:setExtra("playtimeLastUpdate", modules.services.tps._last)
+    player:save()
+end
+
+function auscode.player:resetPlaytime(player)
+    player:setExtra("playtime", 0)
+    player:setExtra("playtimeLastUpdate", modules.services.tps._last)
+    player:save()
+end
+
+function auscode.player:resetPlaytimeLastUpdate(player)
+    player:setExtra("playtime", player:getExtra("playtime") or 0)
+    player:setExtra("playtimeLastUpdate", modules.services.tps._last)
+    player:save()
 end
 
 function auscode.player:_checkPartyMembers()
